@@ -2,6 +2,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Character, MoodType } from '@/types/character';
+import { EnvironmentDefinition, environments } from './environmentConfig';
+
+// 确保JSX类型被正确识别
+declare namespace JSX {
+  interface IntrinsicElements {
+    [key: string]: any;
+  }
+}
 
 interface CharacterWindowProps {
   character: Character;
@@ -92,53 +100,32 @@ export default function CharacterWindow({
     return 'action-idle';
   };
 
-  const getCharacterPosition = (occupation: string) => {
-    const occ = occupation.toLowerCase();
-    if (occ.includes('设计师')) {
-      return 'right-8';
-    }
-    if (occ.includes('教练')) {
-      return 'left-10';
-    }
-    return 'left-8';
+  // 1. 位置系统：只在页面加载时随机一次
+  const [characterPosition, setCharacterPosition] = useState(() => {
+    // 随机位置列表，可以根据需要调整
+    const positions = ['left-8', 'right-8', 'left-1/4', 'right-1/4', 'left-10', 'right-10'];
+    const randomIndex = Math.floor(Math.random() * positions.length);
+    return positions[randomIndex];
+  });
+
+  // 获取角色位置的函数
+  const getCharacterPosition = () => {
+    return characterPosition;
   };
 
+  // 根据职业关键词匹配环境
   const getEnvironmentElements = () => {
     const occupation = character.occupation.toLowerCase();
-    const hobbies = character.hobbies.join(' ').toLowerCase();
     
-    if (occupation.includes('工程师') || occupation.includes('程序员')) {
-      return (
-        <>
-          <div className="absolute bottom-0 left-0 right-0 h-10 bg-[#2d3748]"></div>
-          <div className="absolute bottom-10 left-4 w-16 h-6 bg-[#1a202c] rounded-sm"></div>
-        </>
-      );
+    // 尝试匹配环境
+    for (const env of environments) {
+      if (env.keywords.some(keyword => occupation.includes(keyword))) {
+        return env.element;
+      }
     }
     
-    if (occupation.includes('设计师') || occupation.includes('画')) {
-      return (
-        <>
-          <div className="absolute bottom-0 left-0 right-0 h-10 bg-[#2d3748]"></div>
-          <div className="absolute bottom-10 left-2 w-20 h-16 bg-[#4a5568] rounded-sm"></div>
-        </>
-      );
-    }
-    
-    if (occupation.includes('教练') || occupation.includes('运动')) {
-      return (
-        <>
-          <div className="absolute bottom-0 left-0 right-0 h-10 bg-[#2d3748]"></div>
-          <div className="absolute bottom-0 left-0 right-0 h-20 bg-[#2f4f4f]"></div>
-        </>
-      );
-    }
-    
-    return (
-      <>
-        <div className="absolute bottom-0 left-0 right-0 h-10 bg-[#2d3748]"></div>
-      </>
-    );
+    // 如果没有匹配的环境，返回默认环境
+    return environments.find(env => env.name === '默认环境')?.element;
   };
 
   const getHobbyElements = () => {
@@ -191,16 +178,32 @@ export default function CharacterWindow({
             </div>
         </div>
         
-        <div className="bg-[#0a0a0a] h-48 relative overflow-hidden border-2 border-black">
+        <div className="bg-gradient-to-br from-gray-900 via-slate-900 to-black h-48 relative overflow-hidden border-2 border-black">
           {/* 像素网格背景 */}
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-20"></div>
           {/* 环境元素 */}
           {getEnvironmentElements()}
           
           {/* 角色像素形象 */}
-            <div className={`absolute bottom-10 ${getCharacterPosition(character.occupation)} w-8 h-12 ${getActionClass(currentAction)} animate-breathe ${currentAnimation === 'idle' ? 'animate-idle' : ''} ${currentAnimation === 'typing' ? 'animate-typing' : ''} ${currentAnimation === 'drinking' ? 'animate-drinking' : ''} ${currentAnimation === 'walking' ? 'animate-walking' : ''}`}>
-            <div className="w-6 h-6 bg-[#4a5568] rounded-full mx-auto"></div>
-            <div className="w-8 h-8 bg-[#4a5568] mt-1 rounded-sm"></div>
+            <div className={`absolute bottom-10 ${getCharacterPosition()} w-8 h-12 ${getActionClass(currentAction)} animate-breathe ${currentAnimation === 'idle' ? 'animate-idle' : ''} ${currentAnimation === 'typing' ? 'animate-typing' : ''} ${currentAnimation === 'drinking' ? 'animate-drinking' : ''} ${currentAnimation === 'walking' ? 'animate-walking' : ''}`}>
+            {character.gender === 'female' ? (
+              <>
+                {/* 小辫子 */}
+                <div className="absolute left-1 top-0 w-1 h-3 bg-[#f9a8d4] rounded-b-full"></div>
+                <div className="absolute right-1 top-0 w-1 h-3 bg-[#f9a8d4] rounded-b-full"></div>
+                {/* 头部 */}
+                <div className="w-6 h-6 bg-[#f9a8d4] rounded-full mx-auto mt-2"></div>
+                {/* 身体 */}
+                <div className="w-8 h-8 bg-[#f9a8d4] mt-1 rounded-sm"></div>
+              </>
+            ) : (
+              <>
+                {/* 头部 */}
+                <div className="w-6 h-6 bg-[#4a5568] rounded-full mx-auto"></div>
+                {/* 身体 */}
+                <div className="w-8 h-8 bg-[#4a5568] mt-1 rounded-sm"></div>
+              </>
+            )}
           </div>
           
           {/* 爱好相关元素 */}
