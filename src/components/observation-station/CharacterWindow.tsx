@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Character, MoodType } from '@/types/character';
 
 interface CharacterWindowProps {
@@ -26,8 +26,10 @@ export default function CharacterWindow({
   const [selected, setSelected] = useState(false);
   const [glitchActive, setGlitchActive] = useState(false);
   const [flickerActive, setFlickerActive] = useState(false);
+  const [currentAnimation, setCurrentAnimation] = useState('idle');
+  const animationIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 随机触发故障效果
+  // 随机触发故障效果和动画切换
   useEffect(() => {
     const glitchInterval = setInterval(() => {
       if (Math.random() > 0.97) {
@@ -36,7 +38,20 @@ export default function CharacterWindow({
       }
     }, 1000);
 
-    return () => clearInterval(glitchInterval);
+    // 随机切换动画效果
+        animationIntervalRef.current = setInterval(() => {
+          // 增加权重，让idle状态出现的概率更高
+          const animations = ['idle', 'idle', 'idle', 'typing', 'drinking', 'walking'];
+          const randomIndex = Math.floor(Math.random() * animations.length);
+          setCurrentAnimation(animations[randomIndex]);
+        }, 3000 + Math.random() * 3000); // 3-6秒随机间隔
+
+    return () => {
+      clearInterval(glitchInterval);
+      if (animationIntervalRef.current) {
+        clearInterval(animationIntervalRef.current);
+      }
+    };
   }, []);
 
   // 选中状态切换
@@ -183,7 +198,7 @@ export default function CharacterWindow({
           {getEnvironmentElements()}
           
           {/* 角色像素形象 */}
-          <div className={`absolute bottom-10 ${getCharacterPosition(character.occupation)} w-8 h-12 ${getActionClass(currentAction)}`}>
+            <div className={`absolute bottom-10 ${getCharacterPosition(character.occupation)} w-8 h-12 ${getActionClass(currentAction)} animate-breathe ${currentAnimation === 'idle' ? 'animate-idle' : ''} ${currentAnimation === 'typing' ? 'animate-typing' : ''} ${currentAnimation === 'drinking' ? 'animate-drinking' : ''} ${currentAnimation === 'walking' ? 'animate-walking' : ''}`}>
             <div className="w-6 h-6 bg-[#4a5568] rounded-full mx-auto"></div>
             <div className="w-8 h-8 bg-[#4a5568] mt-1 rounded-sm"></div>
           </div>
