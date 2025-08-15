@@ -33,8 +33,16 @@ export default function Header() {
           <span>稳定</span>
         </div>
         <div className="flex items-center gap-1">
+          <span className="w-2 h-2 bg-blue-500 inline-block"></span>
+          <span>平静</span>
+        </div>
+        <div className="flex items-center gap-1">
           <span className="w-2 h-2 bg-orange-500 inline-block"></span>
           <span>波动</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="w-2 h-2 bg-orange-600 inline-block"></span>
+          <span>焦虑</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="w-2 h-2 bg-red-500 inline-block"></span>

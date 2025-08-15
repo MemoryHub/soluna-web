@@ -1,9 +1,11 @@
 'use client';
-
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import actionCategories from '@/config/characterActions';
+import hintCategories from '@/config/characterHints';
 import { Character, MoodType, CharacterObservation } from '@/types/character';
 import Link from 'next/link';
 import { apiService } from '@/services/api';
+import { eventApiService } from '@/services/event_api';
 import { useObservationEffects } from '@/hooks/useObservationEffects';
 import Header from '@/components/observation-station/Header';
 import ControlPanel from '@/components/observation-station/ControlPanel';
@@ -12,7 +14,7 @@ import EventTicker from '@/components/observation-station/EventTicker';
 import CharacterModal from '@/components/observation-station/CharacterModal';
 
 // 模拟数据，用于演示
-const mockCharacters: Character[] = [
+/*const mockCharacters: Character[] = [
   {
     name: '张明',
     age: 32,
@@ -353,7 +355,7 @@ const mockCharacters: Character[] = [
     character_id: 'default_1',
     is_preset: false
   }
-];
+];*/
 
 export default function ObservationStation() {
   const [characters, setCharacters] = useState<Character[]>([]);
@@ -377,62 +379,98 @@ export default function ObservationStation() {
       hint: Math.random() > 0.7 ? getRandomHint(char) : undefined
     }));
   };
-
-  const getRandomAction = (character: Character): string => {
-    const actions = {
-      '软件工程师': ['调试代码中', '写文档', '参加会议', '喝咖啡', '解决技术难题', '代码审查'],
-      '设计师': ['构思设计方案', '画草图', '查看参考资料', '转笔', '翻速写本', '画窗外风景'],
-      '教练': ['训练队员', '赛后总结', '制定计划', '散步', '鼓励队员', '分析比赛录像'],
-      '企业家': ['参加会议', '制定战略', '见客户', '阅读商业报告', '喝咖啡思考', '激励团队'],
-      '教师': ['备课', '讲课', '批改作业', '与学生交流', '阅读教育书籍', '参加教研活动'],
-      '医生': ['看诊', '写病历', '参加学术会议', '研究病例', '查房', '与患者沟通'],
-      '音乐家': ['作曲', '练习乐器', '听音乐', '演出', '创作歌词', '与其他音乐人交流'],
-      '作家': ['写作', '阅读', '构思情节', '修改稿件', '观察生活', '与读者交流'],
-      '厨师': ['准备食材', '烹饪', '创新菜品', '试味', '清理厨房', '研究食谱'],
-      '无特定职业': ['散步', '阅读', '看电影', '做家务', '与朋友聊天', '思考人生']
-    };
+  const getRandomAction = (character: Character): string => {   // 找到对应职业的分类
+    const category = actionCategories.find(cat => 
+      cat.keywords.some(keyword => character.occupation.includes(keyword))
+    );
     
-    const occupationActions = actions[character.occupation as keyof typeof actions] || ['工作中'];
-    return occupationActions[Math.floor(Math.random() * occupationActions.length)];
+    // 如果找到分类，则从该分类的actions中随机选择一个
+    if (category) {
+      return category.actions[Math.floor(Math.random() * category.actions.length)];
+    }
+    
+    // 默认返回'工作中'
+    return '思考中';
   };
 
   const getMoodFromCharacter = (character: Character): MoodType => {
-    if (character.mood.includes('愉快') || character.mood.includes('开心')) return 'happy';
-    if (character.mood.includes('低落') || character.mood.includes('悲伤')) return 'sad';
+    if (character.mood.includes('愉快') || character.mood.includes('开心') || character.mood.includes('高兴') || character.mood.includes('幸运将至') || character.mood.includes('干劲十足') || character.mood.includes('拯救世界')) return 'happy';
+    if (character.mood.includes('低落') || character.mood.includes('悲伤') || character.mood.includes('难过') || character.mood.includes('愤怒') || character.mood.includes('恐惧') || character.mood.includes('厌恶')) return 'sad';
     if (character.mood.includes('兴奋') || character.mood.includes('激动')) return 'excited';
+    if (character.mood.includes('平静') || character.mood.includes('冥想')) return 'calm';
+    if (character.mood.includes('焦虑') || character.mood.includes('无奈') || character.mood.includes('无语')) return 'anxious';
     return 'neutral';
   };
 
   const getRandomHint = (character: Character): string => {
-    const hints = [
-      `${character.habits[0] || '挠了挠头'}（习惯性动作）`,
-      `${character.habits[1] || '叹了口气'}（情绪波动）`,
-      '看了看窗外（分心）',
-      '调整了坐姿（舒适度）',
-      '露出微笑（有成就感）',
-      '皱了皱眉（遇到困难）',
-      '伸了个懒腰（疲劳）',
-      '喝了口水（口渴）'
-    ];
-    return hints[Math.floor(Math.random() * hints.length)];
+    // 优先根据角色情绪匹配提示语分类
+    const moodCategory = hintCategories.find(cat => 
+      cat.keywords.some(keyword => character.mood.toLowerCase().includes(keyword))
+    );
+
+    // 如果没有匹配到情绪分类，尝试根据职业匹配
+    if (!moodCategory) {
+      const occupationCategory = hintCategories.find(cat => 
+        cat.keywords.some(keyword => character.occupation.toLowerCase().includes(keyword))
+      );
+
+      if (occupationCategory) {
+        return occupationCategory.hints[Math.floor(Math.random() * occupationCategory.hints.length)];
+      }
+    }
+
+    // 如果匹配到情绪分类，使用该分类的提示语
+    if (moodCategory) {
+      return moodCategory.hints[Math.floor(Math.random() * moodCategory.hints.length)];
+    }
+
+    // 如果没有匹配到任何分类，从所有提示语中随机选择
+    const allHints = hintCategories.flatMap(cat => cat.hints);
+    return allHints[Math.floor(Math.random() * allHints.length)] || '思考中';
   };
 
   // 加载角色数据
   useEffect(() => {
     const loadCharacters = async () => {
       try {
-        // 在实际环境中，这里会调用API
-        // const response = await apiService.getCharacters();
-        // setCharacters(response.data);
+        // 传递参数获取前10个角色
+        const response = await apiService.getCharacters(10, 0);
+        const characters = response.data;
+
+        if (characters.length > 0) {
+          // 先设置角色数据，确保即使事件配置获取失败也能显示角色
+          setCharacters(characters);
+          
+          // 批量获取事件配置（放入独立的try-catch块）
+          try {
+            const characterIds = characters.map(character => character.character_id);
+            const eventProfilesResponse = await eventApiService.getEventProfilesByCharacterIds(characterIds);
+            const eventProfiles = eventProfilesResponse.data;
+
+            // 将事件配置合并到角色数据中
+            const charactersWithEvents = characters.map(character => ({
+              ...character,
+              event_profile: eventProfiles[character.character_id]?.[0] || null
+            }));
+
+            setCharacters(charactersWithEvents);
+            // 生成观察数据
+            setObservations(generateObservations(charactersWithEvents));
+          } catch (eventError) {
+            console.error('获取事件配置失败:', eventError);
+            // 事件配置获取失败时，使用默认角色数据生成观察数据
+            setObservations(generateObservations(characters));
+          }
+        } else {
+          setCharacters([]);
+          setObservations([]);
+        }
         
-        // 使用模拟数据
-        setCharacters(mockCharacters);
-        setObservations(generateObservations(mockCharacters));
       } catch (error) {
         console.error('Failed to load characters:', error);
         // 使用模拟数据作为后备
-        setCharacters(mockCharacters);
-        setObservations(generateObservations(mockCharacters));
+        // setCharacters(mockCharacters);
+        // setObservations(generateObservations(mockCharacters));
       } finally {
         setLoading(false);
       }
@@ -490,7 +528,7 @@ export default function ObservationStation() {
     return (
       <div className="bg-[#1a1f29] text-gray-300 min-h-screen font-mono flex items-center justify-center">
         <div className="text-center">
-                      <div className="w-8 h-8 bg-[#38b2ac] rounded-sm mx-auto mb-4 pulse-slow"></div>
+                      <img src="/pixel-loader.svg" alt="加载中" className="mx-auto mb-4" />
           <p>加载角色数据中...</p>
         </div>
       </div>

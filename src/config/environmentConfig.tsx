@@ -92,7 +92,7 @@ export const environments: EnvironmentDefinition[] = [
   },
   {
     name: '教育类',
-    keywords: ['教师', '教授', '教育', '学习', '学生', '学术', '研究'],
+    keywords: ['教师', '教授', '教育', '学习', '学生', '学术', '研究','幼师'],
     element: (
       <>
         <div className="absolute bottom-0 left-0 right-0 h-10 bg-[#2d3748]"></div>

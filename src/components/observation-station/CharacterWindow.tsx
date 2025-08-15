@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Character, MoodType } from '@/types/character';
-import { EnvironmentDefinition, environments } from './environmentConfig';
+import { EnvironmentDefinition, environments } from '@/config/environmentConfig';
 
 // 确保JSX类型被正确识别
 declare namespace JSX {
@@ -73,6 +73,8 @@ export default function CharacterWindow({
       case 'neutral': return 'border-orange-500';
       case 'sad': return 'border-red-500';
       case 'excited': return 'border-yellow-500';
+      case 'calm': return 'border-blue-500';
+      case 'anxious': return 'border-orange-600';
       default: return 'border-orange-500';
     }
   };
@@ -83,6 +85,8 @@ export default function CharacterWindow({
       case 'neutral': return 'bg-orange-500';
       case 'sad': return 'bg-red-500';
       case 'excited': return 'bg-yellow-500';
+      case 'calm': return 'bg-blue-500';
+      case 'anxious': return 'bg-orange-600';
       default: return 'bg-orange-500';
     }
   };
@@ -186,7 +190,7 @@ export default function CharacterWindow({
           
           {/* 角色像素形象 */}
             <div className={`absolute bottom-10 ${getCharacterPosition()} w-8 h-12 ${getActionClass(currentAction)} animate-breathe ${currentAnimation === 'idle' ? 'animate-idle' : ''} ${currentAnimation === 'typing' ? 'animate-typing' : ''} ${currentAnimation === 'drinking' ? 'animate-drinking' : ''} ${currentAnimation === 'walking' ? 'animate-walking' : ''}`}>
-            {character.gender === 'female' ? (
+            {(character.gender === 'female' || character.gender === '女') ? (
               <>
                 {/* 小辫子 */}
                 <div className="absolute left-1 top-0 w-1 h-3 bg-[#f9a8d4] rounded-b-full"></div>

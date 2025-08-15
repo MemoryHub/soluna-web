@@ -26,7 +26,7 @@ export interface EventProfile {
 export interface Character {
   name: string;
   age: number;
-  gender: 'male' | 'female' | 'neutral';
+  gender: 'male' | 'female' | '男' | '女';
   occupation: string;
   background: string;
   mbti_type: string;
@@ -66,7 +66,7 @@ export interface ApiResponse<T = any> {
   success: boolean;
 }
 
-export type MoodType = 'happy' | 'neutral' | 'sad' | 'excited';
+export type MoodType = 'happy' | 'neutral' | 'sad' | 'excited' | 'calm' | 'anxious';
 
 export interface CharacterObservation {
   character: Character;
