@@ -8,9 +8,9 @@ export default function Home() {
           <div className="w-16 h-16 bg-[#38b2ac] rounded-sm mx-auto mb-4 flex items-center justify-center">
             <i className="fa fa-eye text-2xl"></i>
           </div>
-          <h1 className="text-4xl font-bold mb-4">角色观察站</h1>
+          <h1 className="text-4xl font-bold mb-4">AI社会观察站</h1>
           <p className="text-lg text-gray-400 mb-8">
-            AI角色观察器 - 实时监控角色生活轨迹，感受活灵活现的数字生命
+            AI社会观察器 - 实时监控角色生活轨迹，感受活灵活现的数字生命
           </p>
         </div>
         

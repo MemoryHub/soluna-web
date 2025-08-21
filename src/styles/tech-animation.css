@@ -1,0 +1,69 @@
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fillProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+@keyframes scanProgress {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+
+@keyframes moveBackground {
+  0% { background-position: 0 0; }
+  100% { background-position: 20px 20px; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-scan {
+  animation: scan 3s linear infinite;
+}
+
+.animate-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+.pixel-border {
+  box-shadow: 0 0 0 2px #38b2ac, 0 0 10px rgba(56, 178, 172, 0.3);
+}
+
+.pixel-button {
+  box-shadow: 0 2px 0 #1a202c;
+  transition: all 0.1s ease;
+}
+
+.pixel-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 #1a202c;
+}
+
+.pixel-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 0 #1a202c;
+}

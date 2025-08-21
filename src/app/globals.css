@@ -27,7 +27,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Press Start 2P', cursive, Arial, Helvetica, sans-serif;
+  font-family: var(--font-pixel, 'Press Start 2P', 'WenQuanYi Micro Hei Mono', 'SimHei', monospace);
   image-rendering: pixelated;
 }
 

@@ -394,6 +394,7 @@ export default function ObservationStation() {
   };
 
   const getMoodFromCharacter = (character: Character): MoodType => {
+    if (!character.mood) return 'neutral';
     if (character.mood.includes('愉快') || character.mood.includes('开心') || character.mood.includes('高兴') || character.mood.includes('幸运将至') || character.mood.includes('干劲十足') || character.mood.includes('拯救世界')) return 'happy';
     if (character.mood.includes('低落') || character.mood.includes('悲伤') || character.mood.includes('难过') || character.mood.includes('愤怒') || character.mood.includes('恐惧') || character.mood.includes('厌恶')) return 'sad';
     if (character.mood.includes('兴奋') || character.mood.includes('激动')) return 'excited';
@@ -548,7 +549,7 @@ export default function ObservationStation() {
         />
         
         {/* 观察窗口网格 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
           {observations.map((observation, index) => (
             <CharacterWindow
               key={observation.character.character_id}

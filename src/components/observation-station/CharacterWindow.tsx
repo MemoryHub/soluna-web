@@ -158,11 +158,11 @@ export default function CharacterWindow({
 
   return (
     <div 
-      className={`observation-window cursor-pointer relative`} 
+      className={`observation-window cursor-pointer relative flex justify-center items-center p-2`} 
       onClick={toggleSelected}
-      style={{ transform: `rotate(${getRandomRotation()}deg)` }}
+      style={{ transform: `rotate(${getRandomRotation()}deg)`, minHeight: '280px' }}
     >
-      <div className={`border-4 ${getMoodColor(mood)} pixel-border bg-[#0f172a] overflow-hidden relative group ${glitchActive ? 'glitch' : ''} ${selected ? 'ring-4 ring-yellow-400' : ''}`}>
+      <div className={`border-4 ${getMoodColor(mood)} pixel-border bg-[#0f172a] overflow-hidden relative group ${glitchActive ? 'glitch' : ''} ${selected ? 'ring-4 ring-yellow-400' : ''} w-full max-w-[280px] mx-auto`}>
         {/* 扑克牌风格角落装饰 */}
           <div className="absolute top-1 left-2 text-[#e53e3e] font-bold text-lg opacity-30">
             {index % 13 + 1}
@@ -171,10 +171,10 @@ export default function CharacterWindow({
             {index % 13 + 1}
           </div>
 
-          <div className="bg-[#1e293b] px-3 py-1.5 text-xs flex justify-between items-center border-b-4 border-black">
+          <div className="bg-[#1e293b] px-2 py-1 sm:px-3 sm:py-1.5 text-xs flex justify-between items-center border-b-4 border-black overflow-hidden whitespace-nowrap text-ellipsis">
           <div className="flex items-center gap-2">
               <span className="font-bold text-white pixel-font">{character.name}</span>
-              <span className="text-gray-400 text-[10px]">{character.age}岁 · {character.occupation}</span>
+            <span className="text-gray-400 text-[10px] hidden sm:inline">{character.age}岁 · {character.occupation}</span>
             </div>
           <div className="flex items-center gap-2 bg-black/50 px-2 py-1 rounded-sm">
               <span className={`w-3 h-3 ${getMoodDotColor(mood)} rounded-full pixel-border`}></span>
@@ -182,7 +182,7 @@ export default function CharacterWindow({
             </div>
         </div>
         
-        <div className="bg-gradient-to-br from-gray-900 via-slate-900 to-black h-48 relative overflow-hidden border-2 border-black">
+        <div className="bg-gradient-to-br from-gray-900 via-slate-900 to-black h-36 sm:h-48 relative overflow-hidden border-2 border-black">
           {/* 像素网格背景 */}
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiMyMjIiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-20"></div>
           {/* 环境元素 */}
@@ -231,7 +231,7 @@ export default function CharacterWindow({
         
         {/* 悬停放大提示 */}
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pixel-border border-dashed border-white/30">
-          <span className="text-[10px] bg-[var(--pixel-green)] text-black px-3 py-1 rounded-sm pixel-border border-black font-bold transform rotate-[1deg]">
+          <span className="text-[9px] bg-[var(--pixel-green)] text-black px-2 py-1 rounded-sm pixel-border border-black font-bold transform rotate-[1deg]">
             点击查看详情 <i className="fa fa-search-plus ml-1"></i>
           </span>
         </div>

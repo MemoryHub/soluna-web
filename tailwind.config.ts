@@ -22,6 +22,7 @@ const config: Config = {
         }
       },
       fontFamily: {
+        pixel: ['Press Start 2P', 'WenQuanYi Micro Hei Mono', 'SimHei', 'monospace'],
         mono: ['Courier New', 'monospace']
       }
     },

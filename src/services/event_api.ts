@@ -1,4 +1,4 @@
-import { ApiResponse } from '@/types/character';
+import type { ApiResponse } from '../types/api_response';
 import BaseApiService from './base_api';
 
 class EventApiService extends BaseApiService {

@@ -1,7 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Character, MoodType } from '@/types/character';
+import ConfirmModal from './ConfirmModal';
+import Toast from './Toast';
+import { apiService } from '@/services/api';
 
 // MBTI类型对应的官方颜色
 const mbtiColors: Record<string, string> = {
@@ -28,15 +31,52 @@ interface CharacterModalProps {
   character: Character | null;
   isOpen: boolean;
   onClose: () => void;
+  mode?: 'view' | 'new'; // 新增mode属性，区分是查看模式还是新建角色模式
+  onSave?: () => void; // 保存角色回调
+  onRegenerate?: () => void; // 重新生成角色回调
+  onCancel?: () => void; // 取消操作回调
+  characterBaseInfo?: {
+    name: string;
+    age: string;
+    gender: string;
+    occupation: string;
+  }; // 角色基本信息，用于重新生成
 }
 
-export default function CharacterModal({ character, isOpen, onClose }: CharacterModalProps) {
+export default function CharacterModal({ 
+  character, 
+  isOpen, 
+  onClose, 
+  mode = 'view', 
+  onSave, 
+  onRegenerate, 
+  onCancel, 
+  characterBaseInfo 
+}: CharacterModalProps) {
   if (!isOpen || !character) return null;
 
   // 状态管理：控制成长弧光的显示
   const [arcUnlocked, setArcUnlocked] = useState(false);
   const [unlockProgress, setUnlockProgress] = useState(0);
   const [isUnlocking, setIsUnlocking] = useState(false);
+  // 新增状态：控制保存动画和确认弹窗
+  const [isSaving, setIsSaving] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
+  // 将mode转换为组件内部state，以便在保存成功后更新
+  const [currentMode, setCurrentMode] = useState<'view' | 'new'>(mode);
+  // 控制滤镜蒙版动画
+  const [isMasked, setIsMasked] = useState(currentMode === 'new');
+  // Toast提示状态
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+
+  // 监听props中的mode变化（虽然通常不应该变化）
+  useEffect(() => {
+    setCurrentMode(mode);
+  }, [mode]);
 
   // 解锁成长弧光的处理函数
   const handleUnlockArc = () => {
@@ -57,7 +97,99 @@ export default function CharacterModal({ character, isOpen, onClose }: Character
     }, 50);
   }
 
-  const getMoodColor = (mood: string): MoodType => {
+  // 显示Toast提示
+  const showToastNotification = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
+
+  // 处理保存操作（唤醒角色）
+  const handleSave = async () => {
+    if (isSaving || !character) return;
+    
+    setIsSaving(true);
+    
+    try {
+      // 调用保存角色API
+      const response = await apiService.saveCharacter(character);
+      
+      if (response.recode === 200) {
+        
+        setTimeout(() => {
+          setIsMasked(false);
+          
+          // 显示成功Toast
+          showToastNotification('角色已成功苏醒！', 'success');
+          
+          // 保存成功后将模式改为view
+          setCurrentMode('view');
+          
+          // 调用父组件的保存回调（如果存在）
+          if (onSave) {
+            onSave();
+          }
+          
+          setIsSaving(false);
+        }, 500);
+      } else {
+        throw new Error(response.msg || '保存角色失败');
+      }
+    } catch (error) {
+      console.error('保存角色失败:', error);
+      showToastNotification(`保存失败: ${error instanceof Error ? error.message : '未知错误'}`, 'error');
+      setIsSaving(false);
+    }
+  }
+
+  // 处理重新生成操作
+  const handleRegenerate = () => {
+    if (isSaving || !onRegenerate) return;
+    setShowRegenerateConfirm(true);
+  }
+
+  // 确认重置
+  const confirmRegenerate = () => {
+    setShowRegenerateConfirm(false);
+    if (onRegenerate) {
+      onRegenerate();
+    }
+  }
+
+  // 取消重置
+  const cancelRegenerate = () => {
+    setShowRegenerateConfirm(false);
+  }
+
+  // 处理取消操作
+  const handleCancel = () => {
+    if (mode === 'new') {
+      setShowCancelConfirm(true);
+    } else {
+      onClose();
+    }
+  }
+
+  // 确认取消
+  const confirmCancel = () => {
+    setShowCancelConfirm(false);
+    if (onCancel) {
+      onCancel();
+    } else {
+      onClose();
+    }
+  }
+
+  // 取消取消
+  const cancelCancel = () => {
+    setShowCancelConfirm(false);
+  }
+
+  const getMoodColor = (mood: string | undefined): MoodType => {
+    if (!mood) return 'neutral';
     if (mood.includes('愉快') || mood.includes('开心') || mood.includes('高兴') || mood.includes('幸运将至') || mood.includes('干劲十足') || mood.includes('拯救世界')) return 'happy';
     if (mood.includes('低落') || mood.includes('悲伤') || mood.includes('难过') || mood.includes('愤怒') || mood.includes('恐惧') || mood.includes('厌恶')) return 'sad';
     if (mood.includes('兴奋') || mood.includes('激动')) return 'excited';
@@ -66,7 +198,8 @@ export default function CharacterModal({ character, isOpen, onClose }: Character
     return 'neutral';
   };
 
-  const getMoodScore = (mood: string): number => {
+  const getMoodScore = (mood: string | undefined): number => {
+    if (!mood) return 60;
     if (mood.includes('愉快') || mood.includes('开心') || mood.includes('高兴') || mood.includes('幸运将至')) return 80;
     if (mood.includes('干劲十足') || mood.includes('拯救世界')) return 85;
     if (mood.includes('兴奋') || mood.includes('激动')) return 90;
@@ -96,22 +229,100 @@ export default function CharacterModal({ character, isOpen, onClose }: Character
   const moodScore = getMoodScore(character.mood);
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="relative bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#334155] border-2 border-[#38b2ac] rounded-sm w-full max-w-2xl max-h-[90vh] overflow-hidden pixel-border">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+      {/* 确认取消弹窗 */}
+      <ConfirmModal
+        isOpen={showCancelConfirm}
+        title="确认取消"
+        message="确定要取消吗？已生成的角色信息将丢失。"
+        onConfirm={confirmCancel}
+        onCancel={cancelCancel}
+      />
+      
+      {/* 确认重置弹窗 */}
+      <ConfirmModal
+        isOpen={showRegenerateConfirm}
+        title="确认重置"
+        message="确定要重置角色吗？当前角色信息将被替换。"
+        onConfirm={confirmRegenerate}
+        onCancel={cancelRegenerate}
+      />
+      
+      {/* Toast提示组件 */}
+      <Toast
+        message={toastMessage}
+        isVisible={showToast}
+        onHide={() => setShowToast(false)}
+        duration={3000}
+        type={toastType}
+      />
+      
+      {/* 模态框容器 - 在新建模式且未保存时应用完全灰度滤镜 */}
+      <div className={`relative bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#334155] border-2 border-[#38b2ac] rounded-sm w-full max-w-2xl max-h-[95vh] overflow-hidden pixel-border`}>
+        {/* 不确定感效果覆盖层 - 仅在新建模式且未保存时显示 */}
+        {isMasked && (
+          <>
+            {/* 轻微模糊效果 */}
+            <div className="absolute inset-0 filter blur-[0.5px] pointer-events-none z-10"></div>
+            {/* 半透明遮罩层 - 增强不确定感 */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900/70 via-black/40 to-gray-800/70 mix-blend-multiply pointer-events-none z-11"></div>
+            {/* 像素风格噪点效果 - 增加视觉干扰 */}
+            <div className="absolute inset-0 pointer-events-none z-12 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSBiYXNlRnJlcXVlbmN5PSIwLjA1IiBudW1PY3RhdmVzPSIyIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNub2lzZSkiIG9wYWNpdHk9IjAuMDQiLz48L3N2Zz4=')]"></div>
+            {/* 动态干扰效果 - 模拟信号不稳定 */}
+            <div className="absolute inset-0 pointer-events-none z-13 opacity-30 bg-gradient-to-b from-transparent via-black/20 to-transparent scanline"></div>
+          </>
+        )}
         {/* 固定的模态框标题 */}
-        <div className="sticky top-0 z-10 bg-[#1e293b] px-4 py-2 flex justify-between items-center border-b-2 border-[#38b2ac] relative overflow-hidden">
+        <div className="sticky top-0 z-10 bg-[#1e293b] px-3 py-2 flex justify-between items-center border-b-2 border-[#38b2ac] relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#38b2ac] via-[#4299e1] to-[#805ad5]"></div>
           <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#4a5568]"></div>
-          <h2 className="text-lg font-bold">{character.name} - 观察档案</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+          <h2 className="text-lg sm:text-xl font-bold truncate text-white">{character.name} - 观察档案{currentMode === 'new' && ' - 即将苏醒...'}</h2>
+          
+          {/* 新建模式下的标题区域按钮 - 响应式设计 */}
+          {currentMode === 'new' && (
+            <div className="flex gap-2 sm:gap-4 ml-1 sm:ml-2 flex-shrink-0">
+              <button
+                onClick={handleSave}
+                className="px-4 py-1.5 bg-gradient-to-r from-[#8b5cf6] via-[#a78bfa] to-[#c084fc] text-white text-xs font-bold rounded-sm border border-purple-400/30 transition flex items-center justify-center h-7 whitespace-nowrap animate-pulse hover:shadow-lg hover:shadow-purple-500/40 hover:scale-[1.02]"
+                disabled={isSaving}
+                title="唤醒角色"
+              >
+                {isSaving ? (
+                  <>
+                  <i className="fa fa-spinner fa-spin"></i>角色唤醒中...
+                  </>
+                ) : (
+                  <>
+                    <i className="fa fa-bolt mr-2"></i>唤醒角色
+                  </>
+                )}
+              </button>
+              <button
+                onClick={handleRegenerate}
+                className="px-3 py-1.5 bg-gradient-to-r from-[#ef4444] to-[#f87171] text-white text-xs font-bold rounded-sm border border-red-400/30 transition flex items-center justify-center h-7 whitespace-nowrap hover:shadow-md hover:shadow-red-500/30"
+                disabled={isSaving}
+                title="重新生成"
+              >
+                <>
+                  <i className="fa fa-refresh mr-1"></i>重置
+                </>
+              </button>
+            </div>
+          )}
+          
+          <button 
+            onClick={handleCancel} 
+            className="text-gray-400 hover:text-white ml-2"
+            title={currentMode === 'new' ? '取消并关闭' : '关闭'}
+          >
             <i className="fa fa-times"></i>
           </button>
         </div>
         
         {/* 模态框内容 */}
-        <div className="p-4 overflow-y-auto max-h-[calc(90vh-56px)] relative">
+        <div className={`p-4 overflow-y-auto max-h-[calc(90vh-56px)] relative ${isMasked ? 'filter grayscale-[1]' : ''}`}>
           {/* 情绪与基本信息 */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="w-20 h-20 bg-[#48bb78] rounded-sm flex items-center justify-center text-3xl font-bold">
               {character.name.charAt(0)}
             </div>
@@ -153,7 +364,7 @@ export default function CharacterModal({ character, isOpen, onClose }: Character
               </div>
 
               {/* 谈话语气与风格 */}
-              <div className="mb-3 border-2 border-[#805ad5] rounded-sm bg-[#1a202c]/70 p-2 relative overflow-hidden pixel-border">
+              <div className="mb-3 border-2 border-[#805ad5] rounded-sm bg-[#1a202c]/70 p-2 sm:p-3 relative overflow-hidden pixel-border">
                 {/* 像素风格装饰 */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#805ad5] via-[#d6bcfa] to-[#805ad5]"></div>
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-[#805ad5] via-[#d6bcfa] to-[#805ad5]"></div>
@@ -162,7 +373,7 @@ export default function CharacterModal({ character, isOpen, onClose }: Character
                   <i className="fa fa-comments mr-1"></i>谈话风格
                 </h4>
                 
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 gap-2 sm:gap-3">
                   <div className="flex gap-2 items-start bg-[#2d3748]/50 p-2 rounded border border-[#4a5568] group hover:border-[#d6bcfa] transition-colors">
                     <div className="w-6 h-6 bg-[#805ad5]/20 rounded-sm flex items-center justify-center text-[#d6bcfa]">
                       <i className="fa fa-font text-xs"></i>
@@ -218,7 +429,7 @@ export default function CharacterModal({ character, isOpen, onClose }: Character
               </div>
 
               {/* 角色核心属性 */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-3">
                 <div className="bg-[#2d3748]/80 p-2 rounded-sm border border-[#48bb78] relative overflow-hidden group">
                   <div className="absolute top-0 left-0 w-full h-1 bg-[#48bb78] "></div>
                   <h4 className="text-xs font-semibold text-[#48bb78] mb-1 flex items-center">
@@ -248,7 +459,7 @@ export default function CharacterModal({ character, isOpen, onClose }: Character
               </div>
 
               {/* 兴趣与习惯 */}
-              <div className="mb-3 bg-[#0f172a]/70 p-2 border border-[#334155] rounded-sm relative overflow-hidden">
+              <div className="mb-3 bg-[#0f172a]/70 p-2 sm:p-3 border border-[#334155] rounded-sm relative overflow-hidden">
                 {/* 扫描线效果 */}
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-[#ffffff05] to-transparent h-[200%] animate-[scan_3s_linear_infinite]"></div>
                 
@@ -257,7 +468,7 @@ export default function CharacterModal({ character, isOpen, onClose }: Character
                 </h4>
                 
                 {/* 爱好和习惯 - 上排 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-2">
                   {/* 爱好 - 像素字云样式 */}
                   <div className="bg-[#2d3748]/70 p-1.5 rounded-sm border border-[#38bdf8] pixel-border relative">
                     <div className="absolute top-0 left-0 w-full h-0.5 bg-[#38bdf8] "></div>
@@ -298,7 +509,7 @@ export default function CharacterModal({ character, isOpen, onClose }: Character
                 </div>
 
                 {/* 喜欢和不喜欢的话题 - 下排 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   {/* 喜欢的话题 - 像素字云样式 */}
                   <div className="bg-[#2d3748]/70 p-1.5 rounded-sm border border-[#4ade80] pixel-border relative">
                     <div className="absolute top-0 left-0 w-full h-0.5 bg-[#4ade80] "></div>
@@ -350,7 +561,7 @@ export default function CharacterModal({ character, isOpen, onClose }: Character
                 <h4 className="text-xs font-bold text-[#90cdf4] mb-3 flex items-center font-mono tracking-tight">
                   <i className="fa fa-gamepad mr-1"></i>BIG-5 人格
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="relative overflow-hidden bg-[#2d3748]/50 p-1 rounded border border-[#4a5568]">
                     <div className="flex justify-between text-[10px] mb-1 font-mono">
                       <span className="text-gray-300">开放性 (OPENNESS)</span>
@@ -500,11 +711,11 @@ export default function CharacterModal({ character, isOpen, onClose }: Character
           )}
           
           {/* 生活轨迹 */}
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <h3 className="text-sm font-bold mb-3 flex items-center">
               <i className="fa fa-clock-o mr-2 text-[#38b2ac]"></i>生活轨迹（最近5条）
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {character.event_profile?.life_path && Array.isArray(character.event_profile.life_path) ? (
                 character.event_profile.life_path
                   .slice()
@@ -536,16 +747,18 @@ export default function CharacterModal({ character, isOpen, onClose }: Character
               {Object.entries(character.relationships).slice(0, 4).map(([id, relation]) => (
                 <div key={id} className="bg-[#2d3748]/50 p-2 rounded-sm text-xs flex items-center gap-2">
                   <div className="w-6 h-6 bg-[#f6ad55] rounded-full flex items-center justify-center text-xs">
-                    {relation.charAt(0)}
+                    {typeof id === 'string' ? id.charAt(0) : '?'}  
                   </div>
                   <div>
                     <div>{id}</div>
-                    <div className="text-gray-500">{relation}</div>
+                    <div className="text-gray-500">{typeof relation === 'string' ? relation : JSON.stringify(relation)}</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
+          
+          {/* 新建模式下的操作按钮已移至标题区域 */}
         </div>
       </div>
     </div>
