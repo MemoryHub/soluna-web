@@ -7,6 +7,13 @@ export interface EnvironmentDefinition {
   element: React.ReactNode;
 }
 
+// 互动动画定义接口
+export interface InteractionAnimation {
+  name: string;
+  animation: React.ReactNode;
+  duration: number;
+}
+
 // 环境配置数组 - 包含10种环境类型
 export const environments: EnvironmentDefinition[] = [
   {
@@ -235,3 +242,133 @@ export const environments: EnvironmentDefinition[] = [
     )
   }
 ];
+
+// 互动按钮动画配置
+export const interactionAnimations: Record<string, InteractionAnimation> = {
+  // 投喂TA动画
+  feed: {
+    name: '投喂TA',
+    animation: (
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <div className="animate-feed-food">
+          <span className="text-2xl animate-bounce">🍖</span>
+        </div>
+      </div>
+    ),
+    duration: 1500
+  },
+  
+  // 安慰一下动画
+  comfort: {
+    name: '安慰一下',
+    animation: (
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="animate-comfort-heart">
+          {[...Array(5)].map((_, i) => (
+            <div 
+              key={i} 
+              className="absolute text-xl opacity-70"
+              style={{
+                top: `${30 + Math.random() * 40}%`,
+                left: `${40 + Math.random() * 20}%`,
+                animationDelay: `${i * 100}ms`
+              }}
+            >
+              ❤️
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+    duration: 2000
+  },
+  
+  // 拉去加班动画
+  overtime: {
+    name: '拉去加班',
+    animation: (
+      <div className="absolute inset-0 pointer-events-none">
+        {/* 公文包动画 */}
+        <div className="animate-briefcase absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <span className="text-2xl">💼</span>
+        </div>
+        {/* 工作文档动画 */}
+        <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2">
+          {[...Array(4)].map((_, i) => (
+            <div 
+              key={i} 
+              className="w-12 h-8 bg-white/90 border-2 border-gray-400 absolute shadow-md animate-work-document"
+              style={{
+                top: `${-20 - i * 15}px`,
+                transform: `rotate(${-10 + i * 5}deg)`,
+                animationDelay: `${i * 200}ms`
+              }}
+            >
+              {/* 文档内容线 */}
+              <div className="w-10 h-0.5 bg-gray-300 mx-auto mt-1.5"></div>
+              <div className="w-10 h-0.5 bg-gray-300 mx-auto mt-1.5"></div>
+              <div className="w-10 h-0.5 bg-gray-300 mx-auto mt-1.5"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+    duration: 2000
+  },
+  
+  // 水桶倒水效果
+  water: {
+    name: '泼冷水',
+    animation: (
+      <div className="absolute inset-0 pointer-events-none">
+        {/* 水桶和水流组合容器 */}
+        <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2">
+          {/* 水桶 - 预倾斜角度使口朝下 */}
+          <div className="animate-bucket transform -rotate-45 origin-center">
+            <span className="text-3xl">🪣</span>
+          </div>
+          {/* 水流效果 - 使用弯曲的水流形状 */}
+          <div className="absolute top-14 left-2 animate-water-stream">
+            <svg width="10" height="80" viewBox="0 0 10 80" className="overflow-visible">
+              <path 
+                d="M5,0 C5,10 2,20 5,30 C8,40 3,50 5,60 C7,70 5,80 5,80" 
+                fill="none" 
+                stroke="#60A5FA" 
+                strokeWidth="4" 
+                strokeLinecap="round" 
+              />
+            </svg>
+          </div>
+          {/* 水滴效果 */}
+          <div className="absolute top-94 left-0 animate-water-drops">
+            {[...Array(10)].map((_, i) => (
+              <div 
+                key={i} 
+                className="w-2 h-3 bg-blue-400 rounded-b-md absolute opacity-80"
+                style={{
+                  left: `${4 + Math.random() * 12}px`,
+                  animationDelay: `${i * 100 + 300}ms`
+                }}
+              ></div>
+            ))}
+          </div>
+        </div>
+        {/* 水花溅起效果 */}
+        <div className="absolute bottom-1/3 left-1/4 transform -translate-x-1/2 animate-splash-effect">
+          {[...Array(12)].map((_, i) => (
+            <div 
+              key={i} 
+              className="w-2 h-2 bg-blue-300 rounded-full absolute opacity-90"
+              style={{
+                left: `${Math.random() * 30}px`,
+                top: `${-Math.random() * 20}px`,
+                animationDelay: `${i * 50 + 800}ms`
+              }}
+            ></div>
+          ))}
+        </div>
+      </div>
+    ),
+    duration: 2200
+  }
+};

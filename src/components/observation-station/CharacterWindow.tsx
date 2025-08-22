@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Character, MoodType } from '@/types/character';
-import { EnvironmentDefinition, environments } from '@/config/environmentConfig';
+import { EnvironmentDefinition, environments, interactionAnimations, InteractionAnimation } from '@/config/environmentConfig';
 
 // 确保JSX类型被正确识别
 declare namespace JSX {
@@ -36,6 +36,56 @@ export default function CharacterWindow({
   const [flickerActive, setFlickerActive] = useState(false);
   const [currentAnimation, setCurrentAnimation] = useState('idle');
   const animationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // 互动统计状态
+  const [interactionStats, setInteractionStats] = useState({
+    feed: 0,
+    comfort: 0,
+    overtime: 0,
+    water: 0
+  });
+  
+  // 当前点击的按钮，用于显示文字效果
+  const [clickedButton, setClickedButton] = useState<string | null>(null);
+  const [showButtonText, setShowButtonText] = useState(false);
+  
+  // 当前显示的动画
+  const [currentInteractionAnimation, setCurrentInteractionAnimation] = useState<InteractionAnimation | null>(null);
+  
+  // 移动端互动按钮显示状态
+  const [showMobileActions, setShowMobileActions] = useState(false);
+  
+  // 处理互动按钮点击
+  const handleInteraction = (type: 'feed' | 'comfort' | 'overtime' | 'water') => {
+    setInteractionStats(prev => ({
+      ...prev,
+      [type]: prev[type] + 1
+    }));
+    
+    // 设置当前点击的按钮并显示文字
+    setClickedButton(type);
+    setShowButtonText(true);
+    
+    // 2秒后隐藏文字
+    setTimeout(() => {
+      setShowButtonText(false);
+      setTimeout(() => {
+        setClickedButton(null);
+      }, 300); // 等待动画完成
+    }, 2000);
+    
+    // 显示互动动画
+    const animation = interactionAnimations[type];
+    if (animation) {
+      setCurrentInteractionAnimation(animation);
+      // 根据动画持续时间设置隐藏动画的定时器
+      setTimeout(() => {
+        setCurrentInteractionAnimation(null);
+      }, animation.duration);
+    }
+    
+    // 可以在这里添加与后端的交互逻辑
+  };
 
   // 随机触发故障效果和动画切换
   useEffect(() => {
@@ -154,6 +204,16 @@ export default function CharacterWindow({
   const getRandomRotation = () => {
     const rotations = [-1, 0, 1];
     return rotations[Math.floor(Math.random() * rotations.length)];
+  }
+  
+  // 格式化数字，将大数字转换为k或M的缩写形式
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'k';
+    }
+    return num.toString();
   };
 
   return (
@@ -219,14 +279,17 @@ export default function CharacterWindow({
           </div>
           
           {/* 微小互动提示 */}
-          {hint && (
-            <div 
-              id={`hint-${character.character_id}`}
-              className="absolute top-10 left-10 bg-black/70 px-2 py-0.5 text-xs rounded shadow-lg hidden"
-            >
-              {hint}
-            </div>
-          )}
+        {hint && (
+          <div 
+            id={`hint-${character.character_id}`}
+            className="absolute top-10 left-10 bg-black/70 px-2 py-0.5 text-xs rounded shadow-lg hidden"
+          >
+            {hint}
+          </div>
+        )}
+        
+        {/* 互动动画显示区域 */}
+        {currentInteractionAnimation && currentInteractionAnimation.animation}
         </div>
         
         {/* 悬停放大提示 */}
@@ -236,8 +299,82 @@ export default function CharacterWindow({
           </span>
         </div>
         
+        {/* 互动统计显示 */}
+        <div className="absolute bottom-8 right-2 text-[8px] bg-black/60 text-white px-1.5 py-0.5 rounded-sm opacity-70 z-10">
+          <div className="flex gap-2">
+            <span className="text-red-400">🍖{formatNumber(interactionStats.feed)}</span>
+            <span className="text-green-400">🤗{formatNumber(interactionStats.comfort)}</span>
+            <span className="text-blue-400">💼{formatNumber(interactionStats.overtime)}</span>
+            <span className="text-cyan-400">💧{formatNumber(interactionStats.water)}</span>
+          </div>
+        </div>
+        
         {/* 扫描线效果 */}
         <div className="scanline absolute inset-0 pointer-events-none"></div>
+        
+        {/* 移动端互动按钮触发器 - 仅在移动设备上显示 */}
+        <div className="block sm:hidden absolute bottom-2 left-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowMobileActions(!showMobileActions);
+            }}
+            className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-[8px] px-2 py-1 rounded-sm pixel-border border-2 border-black shadow-md"
+          >
+            {showMobileActions ? '收起互动' : '互动'}
+          </button>
+        </div>
+        
+        {/* 互动按钮区域 - 电脑端通过悬停显示，移动端通过点击触发器显示 */}
+        <div className={`absolute bottom-2 left-2 flex flex-col gap-1 transition-opacity duration-300 ${showMobileActions ? 'opacity-100' : 'hidden sm:flex sm:opacity-0 sm:group-hover:opacity-100'}`}>
+          {/* 投喂TA按钮 */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); handleInteraction('feed'); }}
+            className="w-6 h-6 bg-red-600 hover:bg-red-500 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform"
+            title="投喂TA"
+          >
+            <span className="text-[9px] font-bold">🍖</span>
+          </button>
+          
+          {/* 安慰一下按钮 */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); handleInteraction('comfort'); }}
+            className="w-6 h-6 bg-green-600 hover:bg-green-500 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform"
+            title="安慰一下"
+          >
+            <span className="text-[9px] font-bold">🤗</span>
+          </button>
+          
+          {/* 拉去加班按钮 */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); handleInteraction('overtime'); }}
+            className="w-6 h-6 bg-blue-600 hover:bg-blue-500 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform"
+            title="拉去加班"
+          >
+            <span className="text-[9px] font-bold">💼</span>
+          </button>
+          
+          {/* 泼冷水按钮 */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); handleInteraction('water'); }}
+            className="w-6 h-6 bg-cyan-600 hover:bg-cyan-500 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform"
+            title="泼冷水"
+          >
+            <span className="text-[9px] font-bold">💧</span>
+          </button>
+        </div>
+        
+        {/* 点击按钮后显示的文字 */}
+        {clickedButton && (
+          <div 
+            className={`absolute bottom-2 left-10 bg-black/80 text-white text-[8px] px-1.5 py-0.5 rounded-sm transition-opacity duration-300 ${showButtonText ? 'opacity-100' : 'opacity-0'}`}
+          >
+            {clickedButton === 'feed' && '投喂TA'}
+            {clickedButton === 'comfort' && '安慰一下'}
+            {clickedButton === 'overtime' && '拉去加班'}
+            {clickedButton === 'water' && '泼冷水'}
+          </div>
+        )}
       </div>
     </div>
   );

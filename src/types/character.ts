@@ -57,6 +57,8 @@ export interface Character {
   event_profile?: EventProfile;
   character_id: string;
   is_preset: boolean;
+  created_at?: number; // 角色创建时间戳
+  updated_at?: number; // 角色最后更新时间戳
 }
 
 export type MoodType = 'happy' | 'neutral' | 'sad' | 'excited' | 'calm' | 'anxious';
@@ -88,9 +90,12 @@ export function validateAndConvertCharacter(char: any): Character {
   });
   
   // 数字类型字段
-  if (validatedChar.age !== undefined) {
-    validatedChar.age = Number(validatedChar.age) || 0;
-  }
+  const numberFields = ['age', 'created_at', 'updated_at'];
+  numberFields.forEach(field => {
+    if (validatedChar[field] !== undefined) {
+      validatedChar[field] = Number(validatedChar[field]) || 0;
+    }
+  });
   
   // 布尔类型字段
   if (validatedChar.is_preset !== undefined) {

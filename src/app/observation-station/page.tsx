@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import actionCategories from '@/config/characterActions';
 import hintCategories from '@/config/characterHints';
 import { Character, MoodType, CharacterObservation } from '@/types/character';
-import Link from 'next/link';
 import { apiService } from '@/services/api';
 import { eventApiService } from '@/services/event_api';
 import { useObservationEffects } from '@/hooks/useObservationEffects';
@@ -12,350 +11,8 @@ import ControlPanel from '@/components/observation-station/ControlPanel';
 import CharacterWindow from '@/components/observation-station/CharacterWindow';
 import EventTicker from '@/components/observation-station/EventTicker';
 import CharacterModal from '@/components/observation-station/CharacterModal';
-
-// 模拟数据，用于演示
-/*const mockCharacters: Character[] = [
-  {
-    name: '张明',
-    age: 32,
-    gender: 'male',
-    occupation: '软件工程师',
-    background: '技术背景，喜欢编程',
-    mbti_type: 'INTJ',
-    personality: ['内向', '理性', '专注'],
-    big5: { openness: 0.8, conscientiousness: 0.9, extraversion: 0.3, agreeableness: 0.7, neuroticism: 0.4 },
-    motivation: '追求技术突破',
-    conflict: '工作与生活的平衡',
-    flaw: '容易急躁',
-    character_arc: '从技术专家到团队领袖',
-    hobbies: ['编程', '喝咖啡', '科幻小说'],
-    relationships: { 'Sophie': '工作伙伴', 'Yuki': '网友' },
-    daily_routine: [],
-    speech_style: '正式',
-    tone: '友好',
-    response_speed: '中等',
-    communication_style: '直接',
-    favored_topics: ['技术', '科幻'],
-    disliked_topics: ['八卦'],
-    taboos: ['隐私'],
-    beliefs: ['技术改变世界'],
-    goals: ['成为技术专家'],
-    fears: ['技术落后'],
-    secrets: ['有时会偷偷玩游戏'],
-    habits: ['挠头', '喝咖啡'],
-    mood: '愉快',
-    mood_swings: '稳定',
-    memory: {},
-    character_id: 'zhangming_1',
-    is_preset: false
-  },
-  {
-    name: 'Sophie',
-    age: 28,
-    gender: 'female',
-    occupation: '设计师',
-    background: '艺术背景，热爱设计',
-    mbti_type: 'ENFP',
-    personality: ['开朗', '创意', '敏感'],
-    big5: { openness: 0.9, conscientiousness: 0.6, extraversion: 0.8, agreeableness: 0.8, neuroticism: 0.5 },
-    motivation: '创造美的事物',
-    conflict: '创意与商业的平衡',
-    flaw: '情绪化',
-    character_arc: '从设计师到创意总监',
-    hobbies: ['绘画', '速写', '旅行'],
-    relationships: { '张明': '工作伙伴', 'Carlos': '朋友' },
-    daily_routine: [],
-    speech_style: '口语化',
-    tone: '温柔',
-    response_speed: '快速',
-    communication_style: '委婉',
-    favored_topics: ['艺术', '设计'],
-    disliked_topics: ['技术细节'],
-    taboos: ['批评作品'],
-    beliefs: ['美能改变世界'],
-    goals: ['成为知名设计师'],
-    fears: ['创意枯竭'],
-    secrets: ['有时会抄袭灵感'],
-    habits: ['转笔', '咬指甲'],
-    mood: '平静',
-    mood_swings: '多变',
-    memory: {},
-    character_id: 'sophie_1',
-    is_preset: false
-  },
-  {
-    name: 'Carlos',
-    age: 35,
-    gender: 'male',
-    occupation: '教练',
-    background: '体育背景，热爱运动',
-    mbti_type: 'ESFJ',
-    personality: ['外向', '热情', '负责'],
-    big5: { openness: 0.6, conscientiousness: 0.8, extraversion: 0.9, agreeableness: 0.8, neuroticism: 0.3 },
-    motivation: '帮助他人成长',
-    conflict: '个人成就与团队成功',
-    flaw: '过于理想化',
-    character_arc: '从运动员到教练',
-    hobbies: ['足球', '健身', '阅读'],
-    relationships: { 'Sophie': '朋友', '张明': '网友' },
-    daily_routine: [],
-    speech_style: '激励性',
-    tone: '热情',
-    response_speed: '快速',
-    communication_style: '直接',
-    favored_topics: ['运动', '团队合作'],
-    disliked_topics: ['消极话题'],
-    taboos: ['失败'],
-    beliefs: ['团队合作的力量'],
-    goals: ['培养冠军'],
-    fears: ['团队失败'],
-    secrets: ['有时会偷偷训练'],
-    habits: ['拍手', '鼓励他人'],
-    mood: '低落',
-    mood_swings: '敏感',
-    memory: {},
-    character_id: 'carlos_1',
-    is_preset: false
-  },
-  {
-    name: '王芳',
-    age: 30,
-    gender: 'female',
-    occupation: '企业家',
-    background: '商业背景，创立了自己的公司',
-    mbti_type: 'ENTJ',
-    personality: ['果断', '自信', '目标导向'],
-    big5: { openness: 0.7, conscientiousness: 0.9, extraversion: 0.8, agreeableness: 0.6, neuroticism: 0.3 },
-    motivation: '创建成功的企业',
-    conflict: '事业与家庭的平衡',
-    flaw: '过于严格',
-    character_arc: '从创业者到行业领袖',
-    hobbies: ['商业阅读', '高尔夫', '社交'],
-    relationships: { '张明': '业务伙伴', 'Sophie': '朋友' },
-    daily_routine: [],
-    speech_style: '权威',
-    tone: '坚定',
-    response_speed: '快速',
-    communication_style: '直接',
-    favored_topics: ['商业策略', '领导力'],
-    disliked_topics: ['无效率'],
-    taboos: ['失败'],
-    beliefs: ['努力工作创造成功'],
-    goals: ['成为行业领导者'],
-    fears: ['公司破产'],
-    secrets: ['曾经创业失败'],
-    habits: ['看手表', '做笔记'],
-    mood: '专注',
-    mood_swings: '稳定',
-    memory: {},
-    character_id: 'wangfang_1',
-    is_preset: false
-  },
-  {
-    name: '李明',
-    age: 40,
-    gender: 'male',
-    occupation: '教师',
-    background: '教育背景，热爱教学',
-    mbti_type: 'INFJ',
-    personality: ['耐心', '关怀', '智慧'],
-    big5: { openness: 0.8, conscientiousness: 0.9, extraversion: 0.5, agreeableness: 0.9, neuroticism: 0.4 },
-    motivation: '启发学生',
-    conflict: '理想与现实的教育体制',
-    flaw: '过于理想化',
-    character_arc: '从新教师到教育改革者',
-    hobbies: ['阅读', '写作', '徒步'],
-    relationships: { 'Carlos': '朋友', '王芳': '老同学' },
-    daily_routine: [],
-    speech_style: '启发式',
-    tone: '温和',
-    response_speed: '中等',
-    communication_style: '耐心',
-    favored_topics: ['教育', '文学'],
-    disliked_topics: ['标准化考试'],
-    taboos: ['不尊重知识'],
-    beliefs: ['每个学生都能成功'],
-    goals: ['改变教育现状'],
-    fears: ['学生失去学习兴趣'],
-    secrets: ['写匿名教育博客'],
-    habits: ['推眼镜', '点头'],
-    mood: '平静',
-    mood_swings: '稳定',
-    memory: {},
-    character_id: 'liming_1',
-    is_preset: false
-  },
-  {
-    name: 'Sarah',
-    age: 33,
-    gender: 'female',
-    occupation: '医生',
-    background: '医学背景，专注于儿科',
-    mbti_type: 'ISFJ',
-    personality: ['细心', '善良', '负责'],
-    big5: { openness: 0.6, conscientiousness: 0.9, extraversion: 0.5, agreeableness: 0.9, neuroticism: 0.5 },
-    motivation: '帮助儿童健康成长',
-    conflict: '工作压力与个人生活',
-    flaw: '过度工作',
-    character_arc: '从实习医生到儿科专家',
-    hobbies: ['瑜伽', '摄影', '照顾宠物'],
-    relationships: { 'Sophie': '邻居', '李明': '朋友' },
-    daily_routine: [],
-    speech_style: '专业',
-    tone: '亲切',
-    response_speed: '快速',
-    communication_style: '清晰',
-    favored_topics: ['儿童健康', '医学研究'],
-    disliked_topics: ['医疗纠纷'],
-    taboos: ['不尊重生命'],
-    beliefs: ['医生的职责是救死扶伤'],
-    goals: ['成为儿科权威'],
-    fears: ['无法拯救患者'],
-    secrets: ['有时会为贫困患者免费治疗'],
-    habits: ['洗手', '整理物品'],
-    mood: '担忧',
-    mood_swings: '中等',
-    memory: {},
-    character_id: 'sarah_1',
-    is_preset: false
-  },
-  {
-    name: 'David',
-    age: 28,
-    gender: 'male',
-    occupation: '音乐家',
-    background: '音乐背景，擅长钢琴',
-    mbti_type: 'INFP',
-    personality: ['敏感', '创造力', '理想主义'],
-    big5: { openness: 0.9, conscientiousness: 0.7, extraversion: 0.4, agreeableness: 0.8, neuroticism: 0.6 },
-    motivation: '用音乐表达情感',
-    conflict: '艺术与商业的平衡',
-    flaw: '情绪化',
-    character_arc: '从独立音乐人到知名作曲家',
-    hobbies: ['作曲', '听音乐', '旅行'],
-    relationships: { 'Sarah': '朋友', '张明': '音乐伙伴' },
-    daily_routine: [],
-    speech_style: '诗意',
-    tone: '感性',
-    response_speed: '中等',
-    communication_style: '委婉',
-    favored_topics: ['音乐', '艺术'],
-    disliked_topics: ['商业化'],
-    taboos: ['抄袭'],
-    beliefs: ['音乐是灵魂的语言'],
-    goals: ['创作传世之作'],
-    fears: ['灵感枯竭'],
-    secrets: ['写过未发表的小说'],
-    habits: ['哼歌', '敲击节奏'],
-    mood: '忧郁',
-    mood_swings: '明显',
-    memory: {},
-    character_id: 'david_1',
-    is_preset: false
-  },
-  {
-    name: 'Lisa',
-    age: 26,
-    gender: 'female',
-    occupation: '作家',
-    background: '文学背景，出版过小说',
-    mbti_type: 'INTP',
-    personality: ['好奇', '理性', '创造力'],
-    big5: { openness: 0.9, conscientiousness: 0.8, extraversion: 0.3, agreeableness: 0.7, neuroticism: 0.5 },
-    motivation: '讲述有意义的故事',
-    conflict: '创作瓶颈',
-    flaw: '拖延',
-    character_arc: '从新人作家到畅销书作者',
-    hobbies: ['阅读', '写作', '观察人群'],
-    relationships: { 'David': '合作伙伴', '王芳': '读者' },
-    daily_routine: [],
-    speech_style: '文学化',
-    tone: '沉思',
-    response_speed: '慢',
-    communication_style: '间接',
-    favored_topics: ['文学', '哲学'],
-    disliked_topics: ['浮躁'],
-    taboos: ['剽窃'],
-    beliefs: ['故事有改变世界的力量'],
-    goals: ['写出伟大的小说'],
-    fears: ['江郎才尽'],
-    secrets: ['有未公开的笔名'],
-    habits: ['咬笔', '踱步'],
-    mood: '思考',
-    mood_swings: '中等',
-    memory: {},
-    character_id: 'lisa_1',
-    is_preset: false
-  },
-  {
-    name: 'Chef Wu',
-    age: 45,
-    gender: 'male',
-    occupation: '厨师',
-    background: '餐饮背景，拥有自己的餐厅',
-    mbti_type: 'ESTP',
-    personality: ['务实', '灵活', '热情'],
-    big5: { openness: 0.7, conscientiousness: 0.8, extraversion: 0.8, agreeableness: 0.7, neuroticism: 0.4 },
-    motivation: '创造美食',
-    conflict: '传统与创新的平衡',
-    flaw: '脾气急躁',
-    character_arc: '从学徒到星级厨师',
-    hobbies: ['烹饪', '品尝美食', '旅行'],
-    relationships: { 'Carlos': '美食伙伴', 'Lisa': '顾客' },
-    daily_routine: [],
-    speech_style: '直接',
-    tone: '热情',
-    response_speed: '快速',
-    communication_style: '豪爽',
-    favored_topics: ['美食', '烹饪技巧'],
-    disliked_topics: ['难吃的食物'],
-    taboos: ['浪费食材'],
-    beliefs: ['美食能带来快乐'],
-    goals: ['获得米其林星级'],
-    fears: ['失去味觉'],
-    secrets: ['有一道祖传秘方'],
-    habits: ['擦手', '尝味道'],
-    mood: '兴奋',
-    mood_swings: '明显',
-    memory: {},
-    character_id: 'chefwu_1',
-    is_preset: false
-  },
-  {
-    name: '默认角色',
-    age: 30,
-    gender: 'male',
-    occupation: '无特定职业',
-    background: '普通背景',
-    mbti_type: 'ISTJ',
-    personality: ['可靠', '踏实', '细心'],
-    big5: { openness: 0.5, conscientiousness: 0.9, extraversion: 0.4, agreeableness: 0.8, neuroticism: 0.3 },
-    motivation: '过稳定的生活',
-    conflict: '稳定与变化',
-    flaw: '保守',
-    character_arc: '从平凡到找到自我价值',
-    hobbies: ['散步', '阅读', '看电影'],
-    relationships: { '张明': '邻居', 'Sophie': '同事' },
-    daily_routine: [],
-    speech_style: '平实',
-    tone: '温和',
-    response_speed: '中等',
-    communication_style: '直接',
-    favored_topics: ['日常生活', '电影'],
-    disliked_topics: ['冲突'],
-    taboos: ['不诚实'],
-    beliefs: ['平凡中见伟大'],
-    goals: ['家庭幸福'],
-    fears: ['改变'],
-    secrets: ['曾经有过伟大的梦想'],
-    habits: ['按时作息', '整理房间'],
-    mood: '平静',
-    mood_swings: '稳定',
-    memory: {},
-    character_id: 'default_1',
-    is_preset: false
-  }
-];*/
+import Pagination from '@/components/observation-station/Pagination';
+import AlphabetFilter from '@/components/observation-station/AlphabetFilter';
 
 export default function ObservationStation() {
   const [characters, setCharacters] = useState<Character[]>([]);
@@ -365,6 +22,19 @@ export default function ObservationStation() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [events, setEvents] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12); // 每页显示12个角色
+  const [totalItems, setTotalItems] = useState(0);
+  
+  // 字母筛选状态
+  const [selectedLetter, setSelectedLetter] = useState('');
+  const [filteredCharacters, setFilteredCharacters] = useState<Character[]>([]);
+  
+  // 移动端抽屉状态
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   
   // 使用动态效果hook
   useObservationEffects();
@@ -431,17 +101,35 @@ export default function ObservationStation() {
   };
 
   // 加载角色数据
-  useEffect(() => {
-    const loadCharacters = async () => {
-      try {
-        // 传递参数获取前10个角色
-        const response = await apiService.getCharacters(10, 0);
-        const characters = response.data;
+  const loadCharacters = async (page: number = 1, letterFilter?: string) => {
+    try {
+      setLoading(true);
+      
+      // 计算偏移量
+      const offset = (page - 1) * itemsPerPage;
+      
+      // 使用传入的字母筛选值，如果没有则使用当前选中的字母
+      const filterLetter = letterFilter !== undefined ? letterFilter : selectedLetter;
+      
+      // 传递参数获取指定页数的角色，并包含字母筛选条件
+      const response = await apiService.getCharacters(itemsPerPage, offset, filterLetter);
+      
+      // API现在返回的格式是：{ data: { data: [...characters], total: number } }
+      const paginatedData = response.data || { data: [], total: 0 };
+      const characters = paginatedData.data || [];
+      
+      // 从API返回获取总角色数
+    const totalFromApi = paginatedData.total;
+    
+    // 总是更新总角色数为后端返回的总数
+    // 这样分页器才能正确显示当前筛选条件下的总页数
+    setTotalItems(totalFromApi);
 
+        // 先设置原始角色数据
+        setCharacters(characters);
+        
+        // 如果有角色数据
         if (characters.length > 0) {
-          // 先设置角色数据，确保即使事件配置获取失败也能显示角色
-          setCharacters(characters);
-          
           // 批量获取事件配置（放入独立的try-catch块）
           try {
             const characterIds = characters.map(character => character.character_id);
@@ -455,30 +143,68 @@ export default function ObservationStation() {
             }));
 
             setCharacters(charactersWithEvents);
-            // 生成观察数据
-            setObservations(generateObservations(charactersWithEvents));
+            // 应用字母筛选
+            applyLetterFilter(charactersWithEvents, selectedLetter);
           } catch (eventError) {
             console.error('获取事件配置失败:', eventError);
             // 事件配置获取失败时，使用默认角色数据生成观察数据
-            setObservations(generateObservations(characters));
+            applyLetterFilter(characters, selectedLetter);
           }
         } else {
-          setCharacters([]);
+          // 没有数据时重置所有状态
+          setFilteredCharacters([]);
           setObservations([]);
+          if (selectedLetter) {
+            // 如果有字母筛选，显示筛选后的结果为0
+            setTotalItems(0);
+          }
         }
-        
-      } catch (error) {
-        console.error('Failed to load characters:', error);
-        // 使用模拟数据作为后备
-        // setCharacters(mockCharacters);
-        // setObservations(generateObservations(mockCharacters));
-      } finally {
-        setLoading(false);
-      }
-    };
+      
+    } catch (error) {
+      console.error('Failed to load characters:', error);
+      // 使用模拟数据作为后备
+      // setCharacters(mockCharacters);
+      // setObservations(generateObservations(mockCharacters));
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
+  // 初始加载
+  useEffect(() => {
     loadCharacters();
   }, []);
+  
+  // 处理字母选择
+  const handleLetterSelect = (letter: string) => {
+    setSelectedLetter(letter);
+    setCurrentPage(1); // 重置到第一页
+    // 清空当前筛选结果，准备加载新数据
+    setFilteredCharacters([]);
+    // 直接将选中的字母作为参数传递给loadCharacters，确保使用最新值
+    loadCharacters(1, letter);
+  };
+
+  // 处理筛选后的角色数据（现在筛选逻辑由后端处理）
+  const applyLetterFilter = (allCharacters: Character[], letter: string) => {
+    // 直接使用后端返回的已筛选数据
+    setFilteredCharacters(allCharacters);
+    // 设置观察数据
+    setObservations(generateObservations(allCharacters));
+  };
+
+  // 处理分页变化
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    loadCharacters(page);
+  };
+
+  // 处理刷新
+  const handleRefresh = () => {
+    setRefreshing(true);
+    loadCharacters(currentPage);
+  };
 
   // 更新事件列表
   useEffect(() => {
@@ -542,27 +268,107 @@ export default function ObservationStation() {
       
       <main className="container mx-auto px-6 py-8">
         <ControlPanel
-          characterCount={observations.length}
+          characterCount={totalItems}
           timeSpeed={timeSpeed}
           onTimeSpeedChange={setTimeSpeed}
           onAddCharacter={handleAddCharacter}
+          onRefresh={handleRefresh}
+          refreshing={refreshing}
         />
         
-        {/* 观察窗口网格 */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-          {observations.map((observation, index) => (
-            <CharacterWindow
-              key={observation.character.character_id}
-              character={observation.character}
-              currentAction={observation.currentAction}
-              currentTime={observation.currentTime}
-              mood={observation.mood}
-              hint={observation.hint}
-              onClick={() => handleCharacterClick(observation.character)}
-              index={index}
-            />
-          ))}
+        {/* 主要内容区域 - 角色列表和字母筛选 */}
+        <div className="relative">
+          <div className="flex flex-col lg:flex-row gap-3 mt-6">
+            {/* 角色列表区域 - 占用剩余空间 */}
+            <div className="flex-1 min-w-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+                {refreshing ? (
+                  // 列表级别的加载动效
+                  Array(itemsPerPage).fill(0).map((_, index) => (
+                    <div key={index} className="border border-[#2d3748] bg-[#1a1f29]/50 p-4 rounded-sm animate-pulse opacity-70">
+                      <div className="h-16 w-full bg-[#2d3748] mb-2 rounded-sm"></div>
+                      <div className="h-4 w-2/3 bg-[#2d3748] mb-2 rounded-sm"></div>
+                      <div className="h-4 w-1/2 bg-[#2d3748] rounded-sm"></div>
+                    </div>
+                  ))
+                ) : observations.map((observation, index) => (
+                  <CharacterWindow
+                    key={observation.character.character_id}
+                    character={observation.character}
+                    currentAction={observation.currentAction}
+                    currentTime={observation.currentTime}
+                    mood={observation.mood}
+                    hint={observation.hint}
+                    onClick={() => handleCharacterClick(observation.character)}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </div>
+            
+            {/* 桌面端 - 右侧字母筛选组件 */}
+            <div className="hidden lg:block w-[40px] flex-shrink-0">
+              <AlphabetFilter
+                selectedLetter={selectedLetter}
+                onLetterSelect={handleLetterSelect}
+              />
+            </div>
+          </div>
+          
+          {/* 移动端 - 浮动筛选按钮 */}
+          <button 
+            className="lg:hidden fixed bottom-6 right-6 w-12 h-12 bg-[#38b2ac] text-[#1a1f29] rounded-full flex items-center justify-center shadow-lg z-30 transition-transform duration-300 hover:scale-110"
+            onClick={() => setIsDrawerOpen(true)}
+            aria-label="打开字母筛选器"
+          >
+            <span className="text-lg font-bold">A-Z</span>
+          </button>
+          
+          {/* 移动端 - 抽屉式字母筛选组件 */}
+          <div 
+            className={`fixed inset-y-0 right-0 w-32 bg-[#232a39] border-l border-[#2d3748] z-40 transition-transform duration-300 ease-in-out transform ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'} lg:hidden`}
+          >
+            <div className="p-4 h-full">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-sm font-bold text-[#38b2ac]">名字首字母</h3>
+                <button 
+                  className="text-gray-400 hover:text-white"
+                  onClick={() => setIsDrawerOpen(false)}
+                  aria-label="关闭字母筛选器"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="sticky top-4">
+                <AlphabetFilter
+                  selectedLetter={selectedLetter}
+                  onLetterSelect={(letter) => {
+                    handleLetterSelect(letter);
+                    setIsDrawerOpen(false);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+          
+          {/* 抽屉遮罩层 */}
+            {isDrawerOpen && (
+              <div 
+                className="fixed inset-0 bg-[rgba(0,0,0,0.5)] z-30 lg:hidden"
+                onClick={() => setIsDrawerOpen(false)}
+              ></div>
+            )}
         </div>
+        {/* 分页组件 */}
+        {!loading && observations.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            onRefresh={handleRefresh}
+          />
+        )}
         
         <EventTicker events={events} />
       </main>

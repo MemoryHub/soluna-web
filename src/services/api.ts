@@ -1,16 +1,36 @@
 import { Character, CharacterObservation, validateAndConvertCharacter } from '../types/character';
 import BaseApiService from './base_api';
-import type { ApiResponse } from '../types/api_response';
+import type { ApiResponse, PaginatedData } from '../types/api_response';
 import { securityUtils } from '../utils/securityUtils';
 
 class ApiService extends BaseApiService {
 
   // 获取所有角色列表
-  async getCharacters(limit: number = 10, offset: number = 0): Promise<ApiResponse<Character[]>> {
-    return this.request<ApiResponse<Character[]>>('/api/characters/list', {
-      method: 'POST',
-      body: JSON.stringify({ limit, offset }),
-    });
+  async getCharacters(limit: number = 10, offset: number = 0, first_letter: string = '*'): Promise<ApiResponse<PaginatedData<Character>>> {
+    try {
+      // 构建符合后端CharacterListRequest模型的请求体
+      const requestBody = {
+        limit: limit,
+        offset: offset,
+        first_letter: first_letter
+      };
+      
+      console.log('Sending character list request:', requestBody);
+      
+      const response = await this.request<ApiResponse<PaginatedData<Character>>>('/api/characters/list', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+      
+      console.log('Received character list response:', response);
+      return response;
+    } catch (error) {
+      console.error('Error fetching characters:', error);
+      throw error;
+    }
   }
 
   // 根据ID获取角色详情
