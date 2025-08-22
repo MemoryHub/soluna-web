@@ -18,7 +18,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="border-b border-[#2d3748] py-2 px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-2">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#2d3748] py-2 px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-2 bg-[#1a1f29]/95 backdrop-blur-sm">
       <div className="flex items-center gap-3">
         <div className="w-7 h-7 sm:w-8 sm:h-8 bg-[#38b2ac] rounded-sm flex items-center justify-center pulse-slow">
           <i className="fa fa-eye text-xs"></i>
@@ -29,8 +29,12 @@ export default function Header() {
       </div>
       <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs">
         <div className="flex items-center gap-1">
+          <span className="w-2 h-2 bg-yellow-500 inline-block"></span>
+          <span className="hidden sm:inline">兴奋</span>
+        </div>
+        <div className="flex items-center gap-1">
           <span className="w-2 h-2 bg-green-500 inline-block"></span>
-          <span className="hidden sm:inline">稳定</span>
+          <span className="hidden sm:inline">快乐</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="w-2 h-2 bg-blue-500 inline-block"></span>
@@ -38,7 +42,7 @@ export default function Header() {
         </div>
         <div className="flex items-center gap-1">
           <span className="w-2 h-2 bg-orange-500 inline-block"></span>
-          <span className="hidden sm:inline">波动</span>
+          <span className="hidden sm:inline">无聊</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="w-2 h-2 bg-orange-600 inline-block"></span>
@@ -46,7 +50,7 @@ export default function Header() {
         </div>
         <div className="flex items-center gap-1">
           <span className="w-2 h-2 bg-red-500 inline-block"></span>
-          <span className="hidden sm:inline">异常</span>
+          <span className="hidden sm:inline">愤怒</span>
         </div>
         <div className="text-gray-500">
           <i className="fa fa-clock-o mr-1"></i>

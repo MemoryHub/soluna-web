@@ -32,7 +32,7 @@ interface CharacterModalProps {
   isOpen: boolean;
   onClose: () => void;
   mode?: 'view' | 'new'; // 新增mode属性，区分是查看模式还是新建角色模式
-  onSave?: () => void; // 保存角色回调
+  onSave?: (character: Character) => void; // 保存角色回调
   onRegenerate?: () => void; // 重新生成角色回调
   onCancel?: () => void; // 取消操作回调
   characterBaseInfo?: {
@@ -128,9 +128,9 @@ export default function CharacterModal({
           // 保存成功后将模式改为view
           setCurrentMode('view');
           
-          // 调用父组件的保存回调（如果存在）
+          // 这个回调会用于刷新角色列表
           if (onSave) {
-            onSave();
+            onSave(character);
           }
           
           setIsSaving(false);
@@ -166,7 +166,7 @@ export default function CharacterModal({
 
   // 处理取消操作
   const handleCancel = () => {
-    if (mode === 'new') {
+    if (currentMode === 'new') {
       setShowCancelConfirm(true);
     } else {
       onClose();

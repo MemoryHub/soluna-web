@@ -26,6 +26,8 @@ class ApiService extends BaseApiService {
       });
       
       console.log('Received character list response:', response);
+      
+      // 直接返回响应数据
       return response;
     } catch (error) {
       console.error('Error fetching characters:', error);

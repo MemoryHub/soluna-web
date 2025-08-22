@@ -213,7 +213,7 @@ export default function ObservationStation() {
       if (obs.hint) {
         return `${baseEvent}，${obs.hint}`;
       }
-      return `${baseEvent}，状态正常`;
+      return `${baseEvent}，${obs.character.mood}`;
     });
     
     // 添加一些更丰富的事件描述
@@ -247,23 +247,46 @@ export default function ObservationStation() {
   };
 
   const handleAddCharacter = () => {
-    // 这里可以实现添加角色的逻辑
-    console.log('Add character clicked');
+    // 刷新角色列表以显示新添加的角色
+    setRefreshing(true);
+    loadCharacters(currentPage);
   };
 
-  if (loading) {
-    return (
-      <div className="bg-[#1a1f29] text-gray-300 min-h-screen font-mono flex items-center justify-center">
-        <div className="text-center">
-                      <img src="/pixel-loader.svg" alt="加载中" className="mx-auto mb-4" />
-          <p>加载角色数据中...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-[#1a1f29] text-gray-300 min-h-screen font-mono">
+    <div className="text-gray-300 min-h-screen font-mono overflow-x-hidden">
+      {/* 未来科技像素风背景 */}
+      <div className="fixed inset-0 z-0 bg-[#121827] overflow-hidden">
+        {/* 主渐变背景 */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,var(--tw-gradient-stops))] from-[#312e81] via-[#1e1b4b] to-[#121827]"></div>
+        
+        {/* 像素风格噪点纹理 */}
+        <div className="absolute inset-0 opacity-15 bg-[url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.3%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')] bg-repeat"></div>
+        
+        {/* 科技感几何光晕 */}
+        <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 bg-[#4f46e5] rounded-full filter blur-[120px] opacity-20"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-1/3 h-1/3 bg-[#06b6d4] rounded-full filter blur-[100px] opacity-15"></div>
+        
+        {/* 像素风科技网格线效果 */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#2563eb22_1px,transparent_1px),linear-gradient(to_bottom,#2563eb22_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+        
+        {/* 科技感扫描线效果 */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[rgba(37,99,235,0.05)] to-transparent bg-[length:100%_16px] animate-[scan_8s_linear_infinite]"></div>
+        
+        {/* 顶部和底部科技感边框 */}
+        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent opacity-60"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-transparent via-[#06b6d4] to-transparent opacity-60"></div>
+      </div>
+      
+      {/* 全局动画样式 */}
+      <style jsx global>{`
+        @keyframes scan {
+          0% { background-position: 0 -100vh; }
+          100% { background-position: 0 100vh; }
+        }
+      `}</style>
+      
+      {/* 主要内容容器，添加顶部内边距以避免被固定Header遮挡 */}
+      <div className="relative z-10 pt-16 pb-12">
       <Header />
       
       <main className="container mx-auto px-6 py-8">
@@ -273,7 +296,7 @@ export default function ObservationStation() {
           onTimeSpeedChange={setTimeSpeed}
           onAddCharacter={handleAddCharacter}
           onRefresh={handleRefresh}
-          refreshing={refreshing}
+          refreshing={refreshing || loading}
         />
         
         {/* 主要内容区域 - 角色列表和字母筛选 */}
@@ -282,7 +305,7 @@ export default function ObservationStation() {
             {/* 角色列表区域 - 占用剩余空间 */}
             <div className="flex-1 min-w-0">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-                {refreshing ? (
+                {loading || refreshing ? (
                   // 列表级别的加载动效
                   Array(itemsPerPage).fill(0).map((_, index) => (
                     <div key={index} className="border border-[#2d3748] bg-[#1a1f29]/50 p-4 rounded-sm animate-pulse opacity-70">
@@ -360,7 +383,7 @@ export default function ObservationStation() {
             )}
         </div>
         {/* 分页组件 */}
-        {!loading && observations.length > 0 && (
+        {observations.length > 0 && (
           <Pagination
             currentPage={currentPage}
             totalItems={totalItems}
@@ -378,6 +401,7 @@ export default function ObservationStation() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
+      </div>
     </div>
   );
 }
