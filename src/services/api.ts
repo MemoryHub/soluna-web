@@ -2,6 +2,7 @@ import { Character, CharacterObservation, validateAndConvertCharacter } from '..
 import BaseApiService from './base_api';
 import type { ApiResponse, PaginatedData } from '../types/api_response';
 import { securityUtils } from '../utils/securityUtils';
+import { LoginRequest, SendVerificationCodeRequest, LoginResponseData, LogoutRequest } from '../types/user_request/user_request';
 
 class ApiService extends BaseApiService {
 
@@ -15,9 +16,7 @@ class ApiService extends BaseApiService {
         first_letter: first_letter
       };
       
-      console.log('Sending character list request:', requestBody);
-      
-      const response = await this.request<ApiResponse<PaginatedData<Character>>>('/api/characters/list', {
+      const response = await this.request<ApiResponse<any>>('/api/characters/list', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,10 +24,28 @@ class ApiService extends BaseApiService {
         body: JSON.stringify(requestBody),
       });
       
-      console.log('Received character list response:', response);
+      // 检查是否有加密数据
+      if (response.data && response.recode === 200 && response.data.encrypted_characters_data) {
+        try {
+          // 解密数据
+          const decryptedDataStr = await securityUtils.decrypt(response.data.encrypted_characters_data);
+          // 解析解密后的JSON数据
+          const decryptedData = JSON.parse(decryptedDataStr);
+          
+          // 返回与原格式兼容的数据结构
+          return {
+            ...response,
+            data: decryptedData
+          };
+        } catch (decryptError) {
+          console.error('Failed to decrypt characters data:', decryptError);
+          // 如果解密失败，返回原始响应
+          return response;
+        }
+      }
       
-      // 直接返回响应数据
-      return response;
+      // 直接返回响应数据（保持向后兼容）
+      return response as ApiResponse<PaginatedData<Character>>;
     } catch (error) {
       console.error('Error fetching characters:', error);
       throw error;
@@ -95,6 +112,63 @@ class ApiService extends BaseApiService {
         console.error('Error details:', error.message);
         console.error('Stack trace:', error.stack);
       }
+      throw error;
+    }
+  }
+
+  // 发送验证码
+  async sendVerificationCode(phoneNumber: string): Promise<ApiResponse<null>> {
+    try {
+      const requestBody: SendVerificationCodeRequest = {
+        phone_number: phoneNumber
+      };
+      
+      return this.request<ApiResponse<null>>('/api/user/send-verification-code', {
+        method: 'POST',
+        body: JSON.stringify(requestBody)
+      });
+    } catch (error) {
+      console.error('Failed to send verification code:', error);
+      throw error;
+    }
+  }
+
+  // 登录
+  async login(phoneNumber: string, verificationCode: string): Promise<ApiResponse<LoginResponseData>> {
+    try {
+      const requestBody: LoginRequest = {
+        phone_number: phoneNumber,
+        verification_code: verificationCode
+      };
+      
+      return this.request<ApiResponse<LoginResponseData>>('/api/user/login', {
+        method: 'POST',
+        body: JSON.stringify(requestBody)
+      });
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;
+    }
+  }
+  
+  // 登出 - 简化请求体格式以解决422错误
+  async logout(): Promise<ApiResponse<null>> {
+    try {
+      // 从localStorage获取token
+      const token = localStorage.getItem('userToken');
+      
+      const requestBody: LogoutRequest = {
+        token: token || ''
+      };
+
+      // 根据后端要求，将token放在请求体中而不是请求头中
+      return this.request<ApiResponse<null>>('/api/user/logout', {
+        method: 'POST',
+
+        body: JSON.stringify(requestBody)
+      });
+    } catch (error) {
+      console.error('Logout failed:', error);
       throw error;
     }
   }

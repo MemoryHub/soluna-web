@@ -13,13 +13,16 @@ export class SecurityUtils {
 
   /**
    * 初始化加密密钥
+   * 确保与后端实现完全一致：使用ljust(32)方式填充空格
    */
   private async initializeKey(): Promise<void> {
     try {
       // 将字符串密钥转换为符合AES要求的CryptoKey
       const encoder = new TextEncoder();
       // 确保密钥长度为32字节（256位）
-      const keyData = encoder.encode(this.encryptionKeyStr.padEnd(32).substring(0, 32));
+      // 与Python的ljust(32)[:32]保持一致
+      const paddedKey = this.encryptionKeyStr.padEnd(32, ' ').substring(0, 32);
+      const keyData = encoder.encode(paddedKey);
       
       this.key = await crypto.subtle.importKey(
         'raw',
@@ -173,9 +176,17 @@ export class SecurityUtils {
       
       // 将解密后的二进制数据转换为字符串
       const decoder = new TextDecoder();
-      return decoder.decode(unpaddedData);
+      const result = decoder.decode(unpaddedData);
+      
+      // 检查JSON格式完整性并尝试修复
+      let fixedResult = result;
+      if (fixedResult && fixedResult.startsWith('{') && !fixedResult.endsWith('}')) {
+        // 尝试添加缺失的结束大括号
+        fixedResult = fixedResult + '}';
+      }
+      
+      return fixedResult;
     } catch (error) {
-      console.error('Decryption failed:', error);
       throw new Error('Failed to decrypt data');
     }
   }
@@ -201,7 +212,24 @@ export class SecurityUtils {
    * 去除PKCS#7填充
    */
   private unpadData(data: Uint8Array): Uint8Array {
+    // 获取填充长度
     const padLength = data[data.length - 1];
+    
+    // 验证填充是否有效（PKCS#7要求所有填充字节值都等于填充长度）
+    let validPadding = true;
+    for (let i = 0; i < padLength; i++) {
+      if (data[data.length - 1 - i] !== padLength) {
+        validPadding = false;
+        break;
+      }
+    }
+    
+    // 如果填充无效，直接返回原始数据（可能是未填充的数据）
+    if (!validPadding) {
+      return data;
+    }
+    
+    // 有效填充时，移除填充部分
     return data.slice(0, data.length - padLength);
   }
 }

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { apiService } from '@/services/api';
 import '@/styles/tech-animation.css';
 import AddCharacterModal from './AddCharacterModal';
 import { Character } from '@/types/character';
 import Toast from './Toast';
+import { useUser } from '../../hooks/useUser';
 
 interface ControlPanelProps {
   characterCount: number;
@@ -27,9 +28,15 @@ export default function ControlPanel({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [savedCharacter, setSavedCharacter] = useState<Character | null>(null);
   const [isToastVisible, setIsToastVisible] = useState(false);
+  const { isLoggedIn, userInfo, login } = useUser();
 
   const handleAddCharacter = () => {
-    setIsAddModalOpen(true);
+    if (isLoggedIn) {
+      setIsAddModalOpen(true);
+    } else {
+      // 调用login方法，并传入回调函数在登录成功后打开添加观察对象弹窗
+      login(() => setIsAddModalOpen(true));
+    }
   };
 
   const handleSaveCharacter = (character: Character) => {
@@ -153,11 +160,13 @@ export default function ControlPanel({
         </div>
       </div>
 
-    <AddCharacterModal
-            isOpen={isAddModalOpen}
-            onClose={() => setIsAddModalOpen(false)}
-            onSave={handleSaveCharacter}
-          />
+    {isAddModalOpen && (
+      <AddCharacterModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={handleSaveCharacter}
+      />
+    )}
         
           <Toast
             message="时间流速功能开发中..."
@@ -166,6 +175,8 @@ export default function ControlPanel({
             type="info"
             duration={2000}
           />
+          
+
     </div>
   );
 }

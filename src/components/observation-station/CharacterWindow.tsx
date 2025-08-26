@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Character, MoodType } from '@/types/character';
 import { EnvironmentDefinition, environments, interactionAnimations, InteractionAnimation } from '@/config/environmentConfig';
+import { useUser } from '@/hooks/useUser';
 
 // 确保JSX类型被正确识别
 declare namespace JSX {
@@ -30,6 +31,7 @@ export default function CharacterWindow({
   onClick,
   index
 }: CharacterWindowProps) {
+  const { login, isLoggedIn } = useUser();
   // 游戏状态
   const [selected, setSelected] = useState(false);
   const [glitchActive, setGlitchActive] = useState(false);
@@ -57,6 +59,7 @@ export default function CharacterWindow({
   
   // 处理互动按钮点击
   const handleInteraction = (type: 'feed' | 'comfort' | 'overtime' | 'water') => {
+    // 如果已登录，执行互动逻辑
     setInteractionStats(prev => ({
       ...prev,
       [type]: prev[type] + 1
@@ -85,6 +88,15 @@ export default function CharacterWindow({
     }
     
     // 可以在这里添加与后端的交互逻辑
+  };
+
+  // 处理按钮点击，添加登录验证
+  const handleButtonClick = (type: 'feed' | 'comfort' | 'overtime' | 'water') => {
+    if (isLoggedIn) {
+      handleInteraction(type);
+    } else {
+      login(() => handleInteraction(type));
+    }
   };
 
   // 随机触发故障效果和动画切换
@@ -305,7 +317,7 @@ export default function CharacterWindow({
             <span className="text-red-400">🍖{formatNumber(interactionStats.feed)}</span>
             <span className="text-green-400">🤗{formatNumber(interactionStats.comfort)}</span>
             <span className="text-blue-400">💼{formatNumber(interactionStats.overtime)}</span>
-            <span className="text-cyan-400">💧{formatNumber(interactionStats.water)}</span>
+            <span className="text-cyan-400">🪣{formatNumber(interactionStats.water)}</span>
           </div>
         </div>
         
@@ -329,7 +341,7 @@ export default function CharacterWindow({
         <div className={`absolute bottom-2 left-2 flex flex-col gap-1 transition-opacity duration-300 ${showMobileActions ? 'opacity-100' : 'hidden sm:flex sm:opacity-0 sm:group-hover:opacity-100'}`}>
           {/* 投喂TA按钮 */}
           <button 
-            onClick={(e) => { e.stopPropagation(); handleInteraction('feed'); }}
+            onClick={(e) => { e.stopPropagation(); handleButtonClick('feed'); }}
             className="w-6 h-6 bg-red-600 hover:bg-red-500 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform"
             title="投喂TA"
           >
@@ -338,7 +350,7 @@ export default function CharacterWindow({
           
           {/* 安慰一下按钮 */}
           <button 
-            onClick={(e) => { e.stopPropagation(); handleInteraction('comfort'); }}
+            onClick={(e) => { e.stopPropagation(); handleButtonClick('comfort'); }}
             className="w-6 h-6 bg-green-600 hover:bg-green-500 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform"
             title="安慰一下"
           >
@@ -347,7 +359,7 @@ export default function CharacterWindow({
           
           {/* 拉去加班按钮 */}
           <button 
-            onClick={(e) => { e.stopPropagation(); handleInteraction('overtime'); }}
+            onClick={(e) => { e.stopPropagation(); handleButtonClick('overtime'); }}
             className="w-6 h-6 bg-blue-600 hover:bg-blue-500 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform"
             title="拉去加班"
           >
@@ -356,11 +368,11 @@ export default function CharacterWindow({
           
           {/* 泼冷水按钮 */}
           <button 
-            onClick={(e) => { e.stopPropagation(); handleInteraction('water'); }}
+            onClick={(e) => { e.stopPropagation(); handleButtonClick('water'); }}
             className="w-6 h-6 bg-cyan-600 hover:bg-cyan-500 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform"
             title="泼冷水"
           >
-            <span className="text-[9px] font-bold">💧</span>
+            <span className="text-[9px] font-bold">🪣</span>
           </button>
         </div>
         
