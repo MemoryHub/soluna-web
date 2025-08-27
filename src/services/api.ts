@@ -172,6 +172,37 @@ class ApiService extends BaseApiService {
       throw error;
     }
   }
+  
+  // 绑定邀请码
+  async bindInviteCode(code: string): Promise<ApiResponse<{ success: boolean }>> {
+    try {
+      // 从localStorage获取用户信息
+      const userInfoString = localStorage.getItem('userInfo');
+      if (!userInfoString) {
+        throw new Error('用户未登录');
+      }
+      
+      const userInfo = JSON.parse(userInfoString);
+      const userId = userInfo.user_id;
+      
+      if (!userId) {
+        throw new Error('无法获取用户ID');
+      }
+      
+      const requestBody = {
+        code,
+        user_id: userId
+      };
+      
+      return this.request<ApiResponse<{ success: boolean }>>('/api/invite-code/bind', {
+        method: 'POST',
+        body: JSON.stringify(requestBody)
+      });
+    } catch (error) {
+      console.error('绑定邀请码失败:', error);
+      throw error;
+    }
+  }
 }
 
 export const apiService = new ApiService();

@@ -207,6 +207,9 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
           // 关闭弹窗并通知登录成功
           onClose();
           onLoginSuccess();
+          
+          // 刷新页面以更新用户信息数据
+          window.location.reload();
         } catch (error) {
           if (error instanceof SyntaxError) {
             // 提供更详细的JSON解析错误信息

@@ -2,10 +2,9 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { apiService } from '../services/api';
 import LoginModal from '../components/observation-station/LoginModal';
+import { UserInfo } from '../types/user_request/user_request';
 
-interface UserInfo {
-  [key: string]: any;
-}
+
 
 interface UserContextType {
   isLoggedIn: boolean;

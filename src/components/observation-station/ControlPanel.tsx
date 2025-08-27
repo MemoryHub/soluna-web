@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { apiService } from '@/services/api';
 import '@/styles/tech-animation.css';
 import AddCharacterModal from './AddCharacterModal';
+import InviteCodeModal from './InviteCodeModal';
 import { Character } from '@/types/character';
 import Toast from './Toast';
 import { useUser } from '../../hooks/useUser';
+import { useInviteStatus } from '../../hooks/useInviteStatus';
 
 interface ControlPanelProps {
   characterCount: number;
@@ -26,17 +28,37 @@ export default function ControlPanel({
   refreshing = false
 }: ControlPanelProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isInviteCodeModalOpen, setIsInviteCodeModalOpen] = useState(false);
   const [savedCharacter, setSavedCharacter] = useState<Character | null>(null);
   const [isToastVisible, setIsToastVisible] = useState(false);
   const { isLoggedIn, userInfo, login } = useUser();
+  const { hasBoundInviteCode } = useInviteStatus();
+
+  // 检查邀请码绑定状态
+  const checkInviteStatus = () => {
+    // 如果已绑定邀请码，直接打开角色创建模态框
+    if (hasBoundInviteCode()) {
+      setIsAddModalOpen(true);
+    } else {
+      // 否则打开邀请码输入模态框
+      setIsInviteCodeModalOpen(true);
+    }
+  };
 
   const handleAddCharacter = () => {
     if (isLoggedIn) {
-      setIsAddModalOpen(true);
+      // 已登录，检查邀请码绑定状态
+      checkInviteStatus();
     } else {
-      // 调用login方法，并传入回调函数在登录成功后打开添加观察对象弹窗
-      login(() => setIsAddModalOpen(true));
+      // 未登录，先调用登录方法，登录成功后检查邀请码状态
+      login(() => checkInviteStatus());
     }
+  };
+
+  // 邀请码绑定成功后的回调
+  const handleInviteCodeSuccess = () => {
+    // 邀请码绑定成功后，直接打开角色创建模态框
+    // setIsAddModalOpen(true);
   };
 
   const handleSaveCharacter = (character: Character) => {
@@ -160,23 +182,28 @@ export default function ControlPanel({
         </div>
       </div>
 
-    {isAddModalOpen && (
+      {/* Toast提示 */}
+      <Toast
+        message="时间流速功能开发中..."
+        isVisible={isToastVisible}
+        onHide={() => setIsToastVisible(false)}
+        type="info"
+        duration={2000}
+      />
+      
+      {/* 添加角色模态框 */}
       <AddCharacterModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSave={handleSaveCharacter}
       />
-    )}
-        
-          <Toast
-            message="时间流速功能开发中..."
-            isVisible={isToastVisible}
-            onHide={() => setIsToastVisible(false)}
-            type="info"
-            duration={2000}
-          />
-          
-
+      
+      {/* 邀请码输入模态框 */}
+      <InviteCodeModal
+        isOpen={isInviteCodeModalOpen}
+        onClose={() => setIsInviteCodeModalOpen(false)}
+        onSuccess={handleInviteCodeSuccess}
+      />
     </div>
   );
 }
