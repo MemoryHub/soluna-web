@@ -53,7 +53,7 @@ export default function CharacterModal({
   onCancel, 
   characterBaseInfo 
 }: CharacterModalProps) {
-  if (!isOpen || !character) return null;
+  // 移除早期返回，改为在渲染时处理条件渲染
 
   // 状态管理：控制成长弧光的显示
   const [arcUnlocked, setArcUnlocked] = useState(false);
@@ -224,6 +224,11 @@ export default function CharacterModal({
       default: return 'bg-[#f6ad55]';
     }
   };
+
+  // 在渲染时处理条件渲染，避免早期返回导致的静态标记错误
+  if (!isOpen || !character) {
+    return null;
+  }
 
   const moodType = getMoodColor(character.mood);
   const moodScore = getMoodScore(character.mood);
@@ -478,7 +483,7 @@ export default function CharacterModal({
                     <div className="flex flex-wrap gap-1.5">
                       {Array.isArray(character.hobbies) && character.hobbies.length > 0 ? (
                         character.hobbies.map((hobby, idx) => (
-                          <span key={idx} className="text-[9px] px-1.5 py-0.5 bg-[#38bdf8]/10 rounded-sm border border-[#38bdf8]/30 text-[#93c5fd] hover:bg-[#38bdf8]/20 transition-all hover:scale-105 font-mono" style={{fontSize: `${Math.max(8, 11 - idx * 0.5)}px`}}>
+                          <span key={idx} className="text-[9px] px-1.5 py-0.5 bg-[#38bdf8]/10 rounded-sm border border-[#38bdf8]/30 text-[#93c5fd] hover:bg-[#38bdf8]/20 transition-all hover:scale-105 font-mono">
                             {hobby}
                           </span>
                         ))
@@ -497,7 +502,10 @@ export default function CharacterModal({
                     <div className="flex flex-wrap gap-1.5">
                       {Array.isArray(character.habits) && character.habits.length > 0 ? (
                         character.habits.map((habit, idx) => (
-                          <span key={idx} className="text-[9px] px-1.5 py-0.5 bg-[#facc15]/10 rounded-sm border border-[#facc15]/30 text-[#fde68a] hover:bg-[#facc15]/20 transition-all hover:scale-105 font-mono" style={{fontSize: `${Math.max(8, 11 - idx * 0.5)}px`}}>
+                          <span 
+                            key={idx} 
+                            className="text-[9px] px-1.5 py-0.5 bg-[#facc15]/10 rounded-sm border border-[#facc15]/30 text-[#fde68a] hover:bg-[#facc15]/20 transition-all hover:scale-105 font-mono"
+                          >
                             {habit}
                           </span>
                         ))
@@ -519,7 +527,10 @@ export default function CharacterModal({
                     <div className="flex flex-wrap gap-1.5">
                       {Array.isArray(character.favored_topics) && character.favored_topics.length > 0 ? (
                         character.favored_topics.map((topic, idx) => (
-                          <span key={idx} className="text-[9px] px-1.5 py-0.5 bg-[#4ade80]/10 rounded-sm border border-[#4ade80]/30 text-[#86efac] hover:bg-[#4ade80]/20 transition-all hover:scale-105 font-mono" style={{fontSize: `${Math.max(8, 11 - idx * 0.5)}px`}}>
+                          <span 
+                            key={idx} 
+                            className="text-[9px] px-1.5 py-0.5 bg-[#4ade80]/10 rounded-sm border border-[#4ade80]/30 text-[#86efac] hover:bg-[#4ade80]/20 transition-all hover:scale-105 font-mono"
+                          >
                             {topic}
                           </span>
                         ))
@@ -538,7 +549,10 @@ export default function CharacterModal({
                     <div className="flex flex-wrap gap-1.5">
                       {Array.isArray(character.disliked_topics) && character.disliked_topics.length > 0 ? (
                         character.disliked_topics.map((topic, idx) => (
-                          <span key={idx} className="text-[9px] px-1.5 py-0.5 bg-[#f87171]/10 rounded-sm border border-[#f87171]/30 text-[#fca5a5] hover:bg-[#f87171]/20 transition-all hover:scale-105 font-mono" style={{fontSize: `${Math.max(8, 11 - idx * 0.5)}px`}}>
+                          <span 
+                            key={idx} 
+                            className="text-[9px] px-1.5 py-0.5 bg-[#f87171]/10 rounded-sm border border-[#f87171]/30 text-[#fca5a5] hover:bg-[#f87171]/20 transition-all hover:scale-105 font-mono"
+                          >
                             {topic}
                           </span>
                         ))
@@ -612,16 +626,15 @@ export default function CharacterModal({
             </div>
           </div>
           
-          
-          {/* 隐藏的角色成长弧光彩蛋 - 右下角像素图标 */}
-            <div 
-              onClick={handleUnlockArc} 
-              className={`fixed bottom-4 right-4 w-6 h-6 bg-[#1a202c] border border-[#4a5568] rounded-sm flex items-center justify-center cursor-pointer transition-all duration-300 hover:border-[#6366f1] hover:scale-110 opacity-50 hover:opacity-100 z-30 ${!arcUnlocked ? 'pixel-idle' : ''}`} 
-              style={{animationPlayState: isUnlocking ? 'paused' : 'running'}}
-              title=""
-            >
-              <i className={`fa ${isUnlocking ? 'fa-spinner fa-spin' : arcUnlocked ? 'fa-book' : 'fa-circle-o'} text-${isUnlocking ? '#6366f1' : arcUnlocked ? '#6366f1' : '#4a5568'} text-xs`}></i>
-            </div>
+          {/* 隐藏的角色成长弧光彩蛋 */}
+          <div 
+            onClick={handleUnlockArc} 
+            className={`fixed bottom-4 right-4 w-6 h-6 bg-[#1a202c] border border-[#4a5568] rounded-sm flex items-center justify-center cursor-pointer transition-all duration-300 hover:border-[#6366f1] hover:scale-110 opacity-50 hover:opacity-100 z-30 ${!arcUnlocked ? 'pixel-idle' : ''}`} 
+            style={{animationPlayState: isUnlocking ? 'paused' : 'running'}}
+            title=""
+          >
+            <i className={`fa ${isUnlocking ? 'fa-spinner fa-spin' : arcUnlocked ? 'fa-book' : 'fa-circle-o'} text-${isUnlocking ? '#6366f1' : arcUnlocked ? '#6366f1' : '#4a5568'} text-xs`}></i>
+          </div>
 
           {/* 解锁进度条 */}
           {isUnlocking && (
@@ -641,7 +654,9 @@ export default function CharacterModal({
               {/* 角色成长弧光 */}
               <div className="mb-3 bg-[#2d3748]/50 p-2 rounded-sm border-l-2 border-[#6366f1]">
                 <h6 className="text-[9px] font-semibold text-[#a5b4fc] mb-1">角色成长弧光</h6>
-                <p className="text-xs text-gray-300 leading-relaxed font-mono">{character.character_arc || '从立志救国的青年才俊，逐渐成长为掌控天下的权臣，内心在理想与现实之间不断冲突与成长。'}</p>
+                <p className="text-xs text-gray-300 leading-relaxed font-mono">
+                  {character.character_arc || '从立志救国的青年才俊，逐渐成长为掌控天下的权臣，内心在理想与现实之间不断冲突与成长。'}
+                </p>
               </div>
 
               {/* 信仰 */}
@@ -723,15 +738,21 @@ export default function CharacterModal({
                   .reverse()
                   .slice(0, 5)
                   .map((event, index) => (
-                  <div key={event?.event_id || index} className="flex gap-3">
-                    <div className="w-20 text-center text-xs text-gray-500 pt-1">
-                      {event?.start_time ? new Date(event.start_time).toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/\//g, '-') : '未知时间'}
+                    <div key={event?.event_id || index} className="flex gap-3">
+                      <div className="w-20 text-center text-xs text-gray-500 pt-1">
+                        {event?.start_time ? new Date(event.start_time).toLocaleString('zh-CN', { 
+                          year: 'numeric', 
+                          month: '2-digit', 
+                          day: '2-digit', 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        }).replace(/\//g, '-') : '未知时间'}
+                      </div>
+                      <div className="flex-1 bg-[#2d3748]/50 p-2 rounded-sm text-xs">
+                        <p>{event?.description || '无描述信息'}</p>
+                      </div>
                     </div>
-                    <div className="flex-1 bg-[#2d3748]/50 p-2 rounded-sm text-xs">
-                      <p>{event?.description || '无描述信息'}</p>
-                    </div>
-                  </div>
-                ))
+                  ))
               ) : (
                 <div className="text-center text-xs text-gray-400 py-2">暂无行为记录</div>
               )}
@@ -744,7 +765,7 @@ export default function CharacterModal({
               <i className="fa fa-link mr-2 text-[#38b2ac]"></i>人际关系
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {Object.entries(character.relationships).slice(0, 4).map(([id, relation]) => (
+              {Object.entries(character.relationships || {}).slice(0, 4).map(([id, relation]) => (
                 <div key={id} className="bg-[#2d3748]/50 p-2 rounded-sm text-xs flex items-center gap-2">
                   <div className="w-6 h-6 bg-[#f6ad55] rounded-full flex items-center justify-center text-xs">
                     {typeof id === 'string' ? id.charAt(0) : '?'}  
@@ -757,8 +778,6 @@ export default function CharacterModal({
               ))}
             </div>
           </div>
-          
-          {/* 新建模式下的操作按钮已移至标题区域 */}
         </div>
       </div>
     </div>

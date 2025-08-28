@@ -69,6 +69,12 @@ export interface CharacterObservation {
   currentTime: string;
   mood: MoodType;
   hint?: string;
+  interactionStats?: {
+    feed: number;
+    comfort: number;
+    overtime: number;
+    water: number;
+  };
 }
 
 /**

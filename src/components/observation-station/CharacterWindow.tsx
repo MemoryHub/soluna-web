@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Character, MoodType } from '@/types/character';
-import { EnvironmentDefinition, environments, interactionAnimations, InteractionAnimation } from '@/config/environmentConfig';
+import { environments, interactionAnimations, InteractionAnimation } from '@/config/environmentConfig';
+import { interactionApiService } from '@/services/interaction_api';
+import { InteractionType } from '@/types/interaction';
 import { useUser } from '@/hooks/useUser';
 
 // 确保JSX类型被正确识别
@@ -20,6 +22,12 @@ interface CharacterWindowProps {
   hint?: string;
   onClick: () => void;
   index: number;
+  interactionStats: {
+    feed: number;
+    comfort: number;
+    overtime: number;
+    water: number;
+  };
 }
 
 export default function CharacterWindow({
@@ -29,9 +37,10 @@ export default function CharacterWindow({
   mood,
   hint,
   onClick,
-  index
+  index,
+  interactionStats
 }: CharacterWindowProps) {
-  const { login, isLoggedIn } = useUser();
+  const { login, isLoggedIn, userInfo } = useUser();
   // 游戏状态
   const [selected, setSelected] = useState(false);
   const [glitchActive, setGlitchActive] = useState(false);
@@ -39,14 +48,11 @@ export default function CharacterWindow({
   const [currentAnimation, setCurrentAnimation] = useState('idle');
   const animationIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
-  // 互动统计状态
-  const [interactionStats, setInteractionStats] = useState({
-    feed: 0,
-    comfort: 0,
-    overtime: 0,
-    water: 0
-  });
+  // 互动统计状态 - 直接使用传入的数据
+  const [stats, setStats] = useState(interactionStats);
   
+  
+
   // 当前点击的按钮，用于显示文字效果
   const [clickedButton, setClickedButton] = useState<string | null>(null);
   const [showButtonText, setShowButtonText] = useState(false);
@@ -56,42 +62,121 @@ export default function CharacterWindow({
   
   // 移动端互动按钮显示状态
   const [showMobileActions, setShowMobileActions] = useState(false);
-  
-  // 处理互动按钮点击
-  const handleInteraction = (type: 'feed' | 'comfort' | 'overtime' | 'water') => {
-    // 如果已登录，执行互动逻辑
-    setInteractionStats(prev => ({
-      ...prev,
-      [type]: prev[type] + 1
-    }));
+  // 处理互动操作
+  const handleInteraction = async (type: InteractionType) => {
+    if (!userInfo?.user_id) return;
     
-    // 设置当前点击的按钮并显示文字
-    setClickedButton(type);
-    setShowButtonText(true);
+    // 立即在页面上更新统计数据，提供即时反馈
+    const updateKeyMap = {
+      'feed': 'feed',
+      'comfort': 'comfort',
+      'overtime': 'overtime',
+      'water': 'water'
+    };
     
-    // 2秒后隐藏文字
-    setTimeout(() => {
-      setShowButtonText(false);
-      setTimeout(() => {
-        setClickedButton(null);
-      }, 300); // 等待动画完成
-    }, 2000);
-    
-    // 显示互动动画
-    const animation = interactionAnimations[type];
-    if (animation) {
-      setCurrentInteractionAnimation(animation);
-      // 根据动画持续时间设置隐藏动画的定时器
-      setTimeout(() => {
-        setCurrentInteractionAnimation(null);
-      }, animation.duration);
+    const updateKey = updateKeyMap[type];
+    if (updateKey) {
+      setStats(prevStats => ({
+        ...prevStats,
+        [updateKey]: prevStats[updateKey as keyof typeof prevStats] + 1
+      }));
     }
     
-    // 可以在这里添加与后端的交互逻辑
+    try {
+      // 调用API执行互动
+      const response = await interactionApiService.performInteraction({
+        user_id: userInfo.user_id,
+        character_id: character.character_id,
+        interaction_type: type
+      });
+      
+      if (response.recode === 200 && response.data) {
+          // 用服务器返回的真实数据更新本地统计数据（覆盖之前的临时加1）
+          if (response.data.updated_stats) {
+            const newStats = response.data.updated_stats;
+            setStats({
+              feed: newStats.feed_count,
+              comfort: newStats.comfort_count,
+              overtime: newStats.overtime_count,
+              water: newStats.water_count
+            });
+          }
+          
+          // 设置当前点击的按钮并显示文字
+          const actionText = {
+            'feed': '投喂TA！',
+            'comfort': '安慰一下！',
+            'overtime': '拉去加班！',
+            'water': '泼冷水！'
+          }[type] || '操作成功！';
+          setClickedButton(actionText);
+          setShowButtonText(true);
+          
+          // 2秒后隐藏文字
+          setTimeout(() => {
+            setShowButtonText(false);
+            setTimeout(() => {
+              setClickedButton(null);
+            }, 300);
+          }, 2000);
+          
+          // 显示互动动画
+          const animationKey = type.toLowerCase();
+          const animation = interactionAnimations[animationKey];
+          if (animation) {
+            setCurrentInteractionAnimation(animation);
+            setTimeout(() => {
+              setCurrentInteractionAnimation(null);
+            }, animation.duration);
+          }
+        } else if (response.recode === 403) {
+          // 今日已互动，显示明天再来的提示
+          const actionText = {
+            'feed': '今天吃撑了',
+            'comfort': '不要过度关心',
+            'overtime': '好累！明天再加吧',
+            'water': '明天衣服干了再来！'
+          }[type] || '操作';
+          
+          setClickedButton(`${actionText}`);
+          setShowButtonText(true);
+          
+          // 回滚之前的临时加1
+          if (updateKey) {
+            setStats(prevStats => ({
+              ...prevStats,
+              [updateKey]: prevStats[updateKey as keyof typeof prevStats] - 1
+            }));
+          }
+          
+          // 3秒后隐藏提示
+          setTimeout(() => {
+            setShowButtonText(false);
+            setTimeout(() => {
+              setClickedButton(null);
+            }, 300);
+          }, 3000);
+        }
+    } catch (error) {
+      console.error('互动操作失败:', error);
+      // 发生错误时也回滚之前的临时加1
+      if (updateKey) {
+        setStats(prevStats => ({
+          ...prevStats,
+          [updateKey]: prevStats[updateKey as keyof typeof prevStats] - 1
+        }));
+      }
+    }
   };
 
+  // 同步props的interactionStats变化
+  useEffect(() => {
+    setStats(interactionStats);
+  }, [interactionStats]);
+
   // 处理按钮点击，添加登录验证
-  const handleButtonClick = (type: 'feed' | 'comfort' | 'overtime' | 'water') => {
+  // 处理互动按钮点击
+  const handleButtonClick = (type: InteractionType) => {
     if (isLoggedIn) {
       handleInteraction(type);
     } else {
@@ -314,10 +399,10 @@ export default function CharacterWindow({
         {/* 互动统计显示 */}
         <div className="absolute bottom-8 right-2 text-[8px] bg-black/60 text-white px-1.5 py-0.5 rounded-sm opacity-70 z-10">
           <div className="flex gap-2">
-            <span className="text-red-400">🍖{formatNumber(interactionStats.feed)}</span>
-            <span className="text-green-400">🤗{formatNumber(interactionStats.comfort)}</span>
-            <span className="text-blue-400">💼{formatNumber(interactionStats.overtime)}</span>
-            <span className="text-cyan-400">🪣{formatNumber(interactionStats.water)}</span>
+            <span className="text-red-400">🍖{formatNumber(stats.feed)}</span>
+            <span className="text-green-400">🤗{formatNumber(stats.comfort)}</span>
+            <span className="text-blue-400">💼{formatNumber(stats.overtime)}</span>
+            <span className="text-cyan-400">🪣{formatNumber(stats.water)}</span>
           </div>
         </div>
         
@@ -341,8 +426,8 @@ export default function CharacterWindow({
         <div className={`absolute bottom-2 left-2 flex flex-col gap-1 transition-opacity duration-300 ${showMobileActions ? 'opacity-100' : 'hidden sm:flex sm:opacity-0 sm:group-hover:opacity-100'}`}>
           {/* 投喂TA按钮 */}
           <button 
-            onClick={(e) => { e.stopPropagation(); handleButtonClick('feed'); }}
-            className="w-6 h-6 bg-red-600 hover:bg-red-500 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform"
+            onClick={(e) => { e.stopPropagation(); handleButtonClick(InteractionType.FEED); }}
+            className="w-6 h-6 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform bg-red-600 hover:bg-red-500"
             title="投喂TA"
           >
             <span className="text-[9px] font-bold">🍖</span>
@@ -350,8 +435,8 @@ export default function CharacterWindow({
           
           {/* 安慰一下按钮 */}
           <button 
-            onClick={(e) => { e.stopPropagation(); handleButtonClick('comfort'); }}
-            className="w-6 h-6 bg-green-600 hover:bg-green-500 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform"
+            onClick={(e) => { e.stopPropagation(); handleButtonClick(InteractionType.COMFORT); }}
+            className="w-6 h-6 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform bg-green-600 hover:bg-green-500"
             title="安慰一下"
           >
             <span className="text-[9px] font-bold">🤗</span>
@@ -359,8 +444,8 @@ export default function CharacterWindow({
           
           {/* 拉去加班按钮 */}
           <button 
-            onClick={(e) => { e.stopPropagation(); handleButtonClick('overtime'); }}
-            className="w-6 h-6 bg-blue-600 hover:bg-blue-500 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform"
+            onClick={(e) => { e.stopPropagation(); handleButtonClick(InteractionType.OVERTIME); }}
+            className="w-6 h-6 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform bg-blue-600 hover:bg-blue-500"
             title="拉去加班"
           >
             <span className="text-[9px] font-bold">💼</span>
@@ -368,8 +453,8 @@ export default function CharacterWindow({
           
           {/* 泼冷水按钮 */}
           <button 
-            onClick={(e) => { e.stopPropagation(); handleButtonClick('water'); }}
-            className="w-6 h-6 bg-cyan-600 hover:bg-cyan-500 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform"
+            onClick={(e) => { e.stopPropagation(); handleButtonClick(InteractionType.WATER); }}
+            className="w-6 h-6 pixel-border border-2 border-black flex items-center justify-center text-white shadow-md active:translate-y-0.5 transition-transform bg-cyan-600 hover:bg-cyan-500"
             title="泼冷水"
           >
             <span className="text-[9px] font-bold">🪣</span>
@@ -381,10 +466,7 @@ export default function CharacterWindow({
           <div 
             className={`absolute bottom-2 left-10 bg-black/80 text-white text-[8px] px-1.5 py-0.5 rounded-sm transition-opacity duration-300 ${showButtonText ? 'opacity-100' : 'opacity-0'}`}
           >
-            {clickedButton === 'feed' && '投喂TA'}
-            {clickedButton === 'comfort' && '安慰一下'}
-            {clickedButton === 'overtime' && '拉去加班'}
-            {clickedButton === 'water' && '泼冷水'}
+            {clickedButton}
           </div>
         )}
       </div>
