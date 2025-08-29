@@ -69,10 +69,10 @@ export default function Header() {
           {/* 根据登录状态显示不同内容 */}
           {isLoggedIn ? (
             <div className="flex items-center gap-2">
-              {/* 保持原有的文字布局 */}
+              {/* 显示用户手机号 */}
               <div className="text-[#38b2ac]">
                 <i className="fa fa-eye mr-1"></i>
-                <span>AI</span>
+                <span>编号:{userInfo?.phone_number ? userInfo.phone_number.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '未知'}</span>
               </div>
               {/* 直接添加登出按钮 */}
               <button

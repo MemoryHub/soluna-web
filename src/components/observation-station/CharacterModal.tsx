@@ -72,11 +72,49 @@ export default function CharacterModal({
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+  
+  // 保存状态提示文字
+  const [currentSaveHintIndex, setCurrentSaveHintIndex] = useState(0);
+  const [isSaveHintFading, setIsSaveHintFading] = useState(false);
+
+  // 保存过程中的提示文字
+  const saveHintTexts = [
+    "正在为你唤醒新角色...",
+    "AI一旦苏醒将永久无法撤回！",
+    "正在为你生成角色对应的事件配置...",
+    "正在构建角色的记忆宫殿...",
+    "AI角色正在连接虚拟世界...",
+    "正在加载神经元网络...",
+    "校准虚拟坐标，为AI角色注入灵魂...",
+    "即将开启全新冒险，敬请期待！"
+  ];
 
   // 监听props中的mode变化（虽然通常不应该变化）
   useEffect(() => {
     setCurrentMode(mode);
   }, [mode]);
+
+  // 保存状态文字的动画效果
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (isSaving) {
+      interval = setInterval(() => {
+        setIsSaveHintFading(true);
+        
+        setTimeout(() => {
+          setCurrentSaveHintIndex((prevIndex) => (prevIndex + 1) % saveHintTexts.length);
+          setIsSaveHintFading(false);
+        }, 300);
+      }, 5000);
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isSaving]);
 
   // 解锁成长弧光的处理函数
   const handleUnlockArc = () => {
@@ -114,8 +152,8 @@ export default function CharacterModal({
     setIsSaving(true);
     
     try {
-      // 调用保存角色API
-      const response = await apiService.saveCharacter(character);
+      // 调用保存角色API，同时生成事件配置
+      const response = await apiService.saveCharacter(character, true);
       
       if (response.recode === 200) {
         
@@ -286,32 +324,36 @@ export default function CharacterModal({
           {/* 新建模式下的标题区域按钮 - 响应式设计 */}
           {currentMode === 'new' && (
             <div className="flex gap-2 sm:gap-4 ml-1 sm:ml-2 flex-shrink-0">
-              <button
-                onClick={handleSave}
-                className="px-4 py-1.5 bg-gradient-to-r from-[#8b5cf6] via-[#a78bfa] to-[#c084fc] text-white text-xs font-bold rounded-sm border border-purple-400/30 transition flex items-center justify-center h-7 whitespace-nowrap animate-pulse hover:shadow-lg hover:shadow-purple-500/40 hover:scale-[1.02]"
-                disabled={isSaving}
-                title="唤醒角色"
-              >
-                {isSaving ? (
-                  <>
-                  <i className="fa fa-spinner fa-spin"></i>角色唤醒中...
-                  </>
-                ) : (
-                  <>
-                    <i className="fa fa-bolt mr-2"></i>唤醒角色
-                  </>
-                )}
-              </button>
-              <button
-                onClick={handleRegenerate}
-                className="px-3 py-1.5 bg-gradient-to-r from-[#ef4444] to-[#f87171] text-white text-xs font-bold rounded-sm border border-red-400/30 transition flex items-center justify-center h-7 whitespace-nowrap hover:shadow-md hover:shadow-red-500/30"
-                disabled={isSaving}
-                title="重新生成"
-              >
+              {isSaving ? (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1e293b] border border-[#38b2ac]/50 rounded-sm">
+                  <div className="w-3 h-3 border-2 border-[#38b2ac] border-t-transparent rounded-full animate-spin"></div>
+                  <span 
+                    className="text-[#38b2ac] text-[10px] sm:text-xs font-mono transition-opacity duration-300 ease-in-out whitespace-nowrap"
+                    style={{ opacity: isSaveHintFading ? 0 : 1 }}
+                  >
+                    {saveHintTexts[currentSaveHintIndex]}
+                  </span>
+                </div>
+              ) : (
                 <>
-                  <i className="fa fa-refresh mr-1"></i>重置
+                  <button
+                    onClick={handleSave}
+                    className="px-4 py-1.5 bg-gradient-to-r from-[#8b5cf6] via-[#a78bfa] to-[#c084fc] text-white text-xs font-bold rounded-sm border border-purple-400/30 transition flex items-center justify-center h-7 whitespace-nowrap animate-pulse hover:shadow-lg hover:shadow-purple-500/40 hover:scale-[1.02]"
+                    disabled={isSaving}
+                    title="唤醒角色"
+                  >
+                    <i className="fa fa-bolt mr-2"></i>唤醒角色
+                  </button>
+                  <button
+                    onClick={handleRegenerate}
+                    className="px-3 py-1.5 bg-gradient-to-r from-[#ef4444] to-[#f87171] text-white text-xs font-bold rounded-sm border border-red-400/30 transition flex items-center justify-center h-7 whitespace-nowrap hover:shadow-md hover:shadow-red-500/30"
+                    disabled={isSaving}
+                    title="重新生成"
+                  >
+                    <i className="fa fa-refresh mr-1"></i>重置
+                  </button>
                 </>
-              </button>
+              )}
             </div>
           )}
           

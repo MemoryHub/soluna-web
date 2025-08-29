@@ -2,6 +2,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { apiService } from '../services/api';
 import LoginModal from '../components/observation-station/LoginModal';
+import Toast from '../components/observation-station/Toast';
 import { UserInfo } from '../types/user_request/user_request';
 
 
@@ -24,6 +25,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginSuccessCallback, setLoginSuccessCallback] = useState<(() => void) | undefined>(undefined);
+  const [showLogoutToast, setShowLogoutToast] = useState(false);
+  const [logoutMessage, setLogoutMessage] = useState('');
 
   // 检查用户登录状态
   useEffect(() => {
@@ -103,15 +106,23 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const logout = async () => {
     try {
       // 调用后端登出接口
-      await apiService.logout();
+      const response = await apiService.logout();
+      if (response.recode === 200) {
+        setLogoutMessage('登出成功');
+        setShowLogoutToast(true);
+         // 清除本地存储
+        localStorage.removeItem('userInfo');
+        localStorage.removeItem('userToken');
+        setUserInfo(null);
+        setIsLoggedIn(false);
+      } else {
+        setLogoutMessage('登出失败: ' + (response.msg || '未知错误'));
+        setShowLogoutToast(true);
+      }
     } catch (error) {
       console.error('登出失败:', error);
-    } finally {
-      // 清除本地存储
-      localStorage.removeItem('userInfo');
-      localStorage.removeItem('userToken');
-      setUserInfo(null);
-      setIsLoggedIn(false);
+      setLogoutMessage('登出失败: 网络错误');
+      setShowLogoutToast(true);
     }
   };
 
@@ -126,6 +137,14 @@ export const UserProvider = ({ children }: UserProviderProps) => {
           onLoginSuccess={handleLoginSuccess}
         />
       )}
+      {/* 登出Toast提示 */}
+      <Toast
+        message={logoutMessage}
+        isVisible={showLogoutToast}
+        onHide={() => setShowLogoutToast(false)}
+        type="success"
+        duration={3000}
+      />
     </UserContext.Provider>
   );
 };

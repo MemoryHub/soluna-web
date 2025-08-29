@@ -44,7 +44,13 @@ export default function AddCharacterModal({ isOpen, onClose, onSave }: AddCharac
   const [isFading, setIsFading] = useState(false);
   const hintTexts = [
     'AI正在构建背景故事和人格特征...',
-    'AI一旦苏醒将永久无法撤回！'
+    'AI一旦苏醒将永久无法撤回！',
+    '正在唤醒AI记忆...',
+    'AI即将拥有自主意识...',
+    'AI情绪系统即将启动...',
+    '角色即将感知世界...',
+    '生命创建中...',
+    '自我意识觉醒中...'
   ];
 
   // 科技感背景网格动画效果

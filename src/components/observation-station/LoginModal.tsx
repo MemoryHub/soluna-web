@@ -273,20 +273,44 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
           {/* 关闭按钮 */}
           <button 
             onClick={onClose} 
-            className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-[#2d3748] hover:bg-[#4a5568] pixel-button"
+            className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-[#2d3748] hover:bg-[#4a5568] pixel-button z-10"
           >
             <i className="fa fa-times"></i>
           </button>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
             {/* 左侧：项目介绍 */}
-            <div className="p-6 border-r border-[#2d3748] bg-[#1a1f29]">
-              <div className="mb-6">
+            <div className="p-6 border-r border-[#2d3748] bg-gradient-to-br from-[#0a0a0a] via-[#1a0b2e] to-[#16213e] relative overflow-hidden">
+              {/* 像素化背景装饰 */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-0 left-0 w-4 h-4 bg-[#38b2ac] animate-pulse" style={{ animationDelay: '0s' }}></div>
+                <div className="absolute top-8 right-4 w-2 h-2 bg-[#4fd1c7] animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                <div className="absolute bottom-16 left-8 w-3 h-3 bg-[#38b2ac] animate-pulse" style={{ animationDelay: '1s' }}></div>
+                <div className="absolute bottom-8 right-12 w-2 h-2 bg-[#4fd1c7] animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+              </div>
+              
+              {/* 网格线条背景 */}
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute inset-0" style={{
+                  backgroundImage: `linear-gradient(rgba(56, 178, 172, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(56, 178, 172, 0.1) 1px, transparent 1px)`,
+                  backgroundSize: '20px 20px'
+                }}></div>
+              </div>
+              
+              {/* 发光效果 */}
+              <div className="absolute top-0 left-0 w-full h-full">
+                <div className="absolute top-0 left-0 w-64 h-64 bg-[#38b2ac] rounded-full opacity-5 blur-3xl animate-pulse"></div>
+                <div className="absolute bottom-0 right-0 w-48 h-48 bg-[#4fd1c7] rounded-full opacity-5 blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+              </div>
+              <div className="mb-6 relative z-10">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 bg-[#38b2ac] rounded-sm flex items-center justify-center pulse-slow">
-                    <i className="fa fa-eye text-xs"></i>
+                  <div className="relative">
+                    <div className="w-8 h-8 bg-gradient-to-br from-[#38b2ac] to-[#4fd1c7] rounded-sm flex items-center justify-center pixelFloat animate-pulse-slow relative z-10">
+                      <i className="fa fa-eye text-xs text-white"></i>
+                    </div>
+                    <div className="absolute inset-0 w-8 h-8 bg-[#38b2ac] rounded-sm animate-ping opacity-20"></div>
                   </div>
-                  <h2 className="text-lg font-bold tracking-wide">AI社会观察站</h2>
+                  <h2 className="text-lg font-bold tracking-wide bg-gradient-to-r from-[#38b2ac] to-[#4fd1c7] bg-clip-text text-transparent">AI社会观察站</h2>
                 </div>
                 
                 <div className="space-y-4">
@@ -307,20 +331,47 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
               </div>
               
               {/* 装饰元素 - 技术感动画 */}
-              <div className="mt-6 pt-6 border-t border-[#2d3748]">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2 h-2 bg-[#38b2ac] animate-pulse"></div>
+              <div className="mt-6 pt-6 border-t border-[#2d3748] relative z-10">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 bg-[#38b2ac] animate-pulse neonGlow"></div>
                   <span className="text-xs text-gray-400">系统状态</span>
                 </div>
-                <div className="h-2 bg-[#2d3748] rounded-sm overflow-hidden">
-                  <div className="h-full bg-[#38b2ac] animate-scanProgress"></div>
+                <div className="h-2 bg-[#2d3748]/50 rounded-sm overflow-hidden relative">
+                  <div className="h-full bg-gradient-to-r from-[#38b2ac] to-[#4fd1c7] animate-dataStream" style={{ animationDuration: '3s', animationIterationCount: 'infinite' }}></div>
+                </div>
+                
+                {/* 矩阵雨效果 */}
+                <div className="absolute top-0 right-0 w-8 h-full overflow-hidden opacity-30">
+                  <div className="absolute text-[8px] text-[#38b2ac] animate-matrixRain" style={{ animationDuration: '2s', animationDelay: '0s' }}>0101</div>
+                  <div className="absolute text-[8px] text-[#4fd1c7] animate-matrixRain" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }}>1010</div>
+                  <div className="absolute text-[8px] text-[#38b2ac] animate-matrixRain" style={{ animationDuration: '1.8s', animationDelay: '1s' }}>1100</div>
                 </div>
               </div>
             </div>
             
             {/* 右侧：登录功能 */}
-            <div className="p-6">
-              <h2 className="text-lg font-bold mb-6 tracking-wide">
+            <div className="p-6 bg-gradient-to-tl from-[#0f1419] via-[#0a1929] to-[#1a0b2e] relative overflow-hidden">
+              {/* 像素化背景装饰 */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute top-4 right-2 w-3 h-3 bg-[#38b2ac] animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="absolute top-12 left-6 w-2 h-2 bg-[#4fd1c7] animate-pulse" style={{ animationDelay: '0.7s' }}></div>
+                <div className="absolute bottom-12 right-8 w-4 h-4 bg-[#38b2ac] animate-pulse" style={{ animationDelay: '1.2s' }}></div>
+                <div className="absolute bottom-4 left-12 w-2 h-2 bg-[#4fd1c7] animate-pulse" style={{ animationDelay: '1.7s' }}></div>
+              </div>
+              
+              {/* 对角线网格背景 */}
+              <div className="absolute inset-0 opacity-5">
+                <div className="absolute inset-0" style={{
+                  backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(56, 178, 172, 0.1) 10px, rgba(56, 178, 172, 0.1) 11px)`,
+                }}></div>
+              </div>
+              
+              {/* 霓虹边框效果 */}
+              <div className="absolute inset-0">
+                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#38b2ac] to-transparent animate-pulse"></div>
+                <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#4fd1c7] to-transparent animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+              </div>
+              <h2 className="text-lg font-bold mb-6 tracking-wide bg-gradient-to-r from-[#38b2ac] to-[#4fd1c7] bg-clip-text text-transparent relative z-10">
                 {step === 'phone' ? '手机号登录' : '验证码登录'}
               </h2>
               
@@ -344,14 +395,18 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                       onChange={handlePhoneInput}
                       placeholder="请输入11位手机号码"
                       maxLength={11}
-                      className="w-full bg-[#1a1f29] border border-[#38b2ac] p-3 text-sm pixel-border focus:outline-none focus:ring-1 focus:ring-[#38b2ac]"
+                      className="w-full bg-[#1a1f29]/80 border border-[#38b2ac] p-3 text-sm pixel-border focus:outline-none focus:ring-2 focus:ring-[#38b2ac] focus:shadow-[0_0_15px_rgba(56,178,172,0.5)] transition-all duration-200 hover:bg-[#1a1f29]/60 placeholder-gray-500"
                     />
                   </div>
                   
                   <button
                     onClick={handleSendCode}
                     disabled={isSendingCode || phoneNumber.length !== 11}
-                    className={`w-full py-3 bg-[#38b2ac] text-white font-medium pixel-button disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors`}
+                    className={`w-full py-3 font-medium pixel-button transition-colors relative z-10 ${
+                      isSendingCode || phoneNumber.length !== 11
+                        ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                        : 'bg-[#38b2ac] text-white hover:bg-[#4fd1c7]'
+                    }`}
                   >
                     {isSendingCode ? (
                       <div className="flex items-center justify-center gap-2">
@@ -389,7 +444,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                           onChange={(e) => handleCodeInput(index, e.target.value)}
                           onKeyDown={(e) => handleCodeKeyDown(index, e)}
                           maxLength={1}
-                          className="w-12 h-12 bg-[#1a1f29] border border-[#38b2ac] text-center text-lg font-bold pixel-border focus:outline-none focus:ring-1 focus:ring-[#38b2ac]"
+                          className="w-12 h-12 bg-[#1a1f29]/80 border border-[#38b2ac] text-center text-lg font-bold pixel-border focus:outline-none focus:ring-2 focus:ring-[#38b2ac] focus:shadow-[0_0_15px_rgba(56,178,172,0.5)] transition-all duration-200 hover:bg-[#1a1f29]/60"
                         />
                       ))}
                     </div>

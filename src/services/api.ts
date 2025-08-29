@@ -91,7 +91,7 @@ class ApiService extends BaseApiService {
   }
 
   // 保存角色
-  async saveCharacter(character: Character): Promise<ApiResponse<Character>> {
+  async saveCharacter(character: Character, isWithEvent: boolean = false): Promise<ApiResponse<Character>> {
     try {
       // 对角色数据进行类型检验和转换
       const validatedCharacter = validateAndConvertCharacter(character);
@@ -102,7 +102,8 @@ class ApiService extends BaseApiService {
       return this.request<ApiResponse<Character>>('/api/characters/save', {
         method: 'POST',
         body: JSON.stringify({
-          encrypted_character: encryptedCharacter
+          encrypted_character: encryptedCharacter,
+          is_with_event: isWithEvent
         }),
       });
     } catch (error) {
