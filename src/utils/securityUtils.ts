@@ -69,7 +69,7 @@ export class SecurityUtils {
           iv: iv
         },
         this.key,
-        paddedData
+        paddedData.buffer as ArrayBuffer
       );
       
       // 组合IV和加密数据
@@ -122,7 +122,7 @@ export class SecurityUtils {
           iv: iv
         },
         key,
-        paddedData
+        paddedData.buffer as ArrayBuffer
       );
       
       // 组合IV和加密数据
@@ -168,7 +168,7 @@ export class SecurityUtils {
           iv: iv
         },
         this.key,
-        encryptedContent
+        encryptedContent.buffer as ArrayBuffer
       );
       
       // 去除PKCS#7填充
