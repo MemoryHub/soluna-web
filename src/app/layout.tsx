@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "角色观察站 | 实时监控",
-  description: "AI角色观察器 - 实时监控角色生活轨迹",
+  title: "Soluna | AI角色观察",
+  description: "当AI拥有情感，人类将找到真正的共生伙伴",
 };
 
 export default function RootLayout({
