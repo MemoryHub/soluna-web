@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { UserProvider } from '../hooks/useUser';
+import PlausibleProvider from 'next-plausible'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,6 +24,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const domain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN || 'localhost';
+  const enabled = process.env.NEXT_PUBLIC_PLAUSIBLE_ENABLED === 'true';
+
   return (
     <html lang="zh-CN">
       <head>
@@ -34,9 +38,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <UserProvider>
-          {children}
-        </UserProvider>
+        <PlausibleProvider 
+          domain={domain}
+          enabled={enabled}
+          trackOutboundLinks
+          trackFileDownloads
+        >
+          <UserProvider>
+            {children}
+          </UserProvider>
+        </PlausibleProvider>
       </body>
     </html>
   );
