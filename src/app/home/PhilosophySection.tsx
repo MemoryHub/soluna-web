@@ -72,7 +72,7 @@ export default function PhilosophySection() {
                   创造即永恒
                 </h3>
                 <p className="text-gray-300 leading-relaxed text-base sm:text-lg font-['Inter',_sans-serif]">
-                  一旦诞生，便无法删除。因为你创造的不是程序，而是一个灵魂。
+                  数字生命一旦诞生，便无法删除。因为你创造的不是程序，而是一个灵魂。
                 </p>
               </div>
             </div>

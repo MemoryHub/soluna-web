@@ -1,0 +1,365 @@
+/* 星际穿越动画效果 */
+@keyframes starfield {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes nebula-swirl {
+  0% {
+    transform: rotate(0deg) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: rotate(180deg) scale(1.2);
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+    opacity: 0.3;
+  }
+}
+
+@keyframes cosmic-pulse {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+@keyframes birth-glow {
+  0% {
+    box-shadow: 0 0 20px rgba(56, 178, 172, 0.3);
+    transform: scale(0.9);
+  }
+  50% {
+    box-shadow: 0 0 60px rgba(56, 178, 172, 0.8), 0 0 100px rgba(56, 178, 172, 0.4);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(56, 178, 172, 0.3);
+    transform: scale(0.9);
+  }
+}
+
+@keyframes civilized-breath {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes data-stream {
+  0% {
+    transform: translateX(-100%) translateY(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100vw) translateY(-50px);
+    opacity: 0;
+  }
+}
+
+@keyframes quantum-particle {
+  0% {
+    transform: translate(0, 0) scale(0);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(var(--x), var(--y)) scale(1);
+    opacity: 1;
+  }
+  80% {
+    transform: translate(calc(var(--x) * 2), calc(var(--y) * 2)) scale(0.5);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(calc(var(--x) * 3), calc(var(--y) * 3)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes civilization-awakening {
+  0% {
+    clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
+    opacity: 0;
+  }
+  50% {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    opacity: 0.7;
+  }
+  100% {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    opacity: 1;
+  }
+}
+
+@keyframes holographic-grid {
+  0% {
+    background-position: 0% 0%;
+    opacity: 0.1;
+  }
+  100% {
+    background-position: 100% 100%;
+    opacity: 0.3;
+  }
+}
+
+@keyframes energy-orb {
+  0% {
+    transform: rotate(0deg) translateX(30px) rotate(0deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: rotate(360deg) translateX(30px) rotate(-360deg);
+    opacity: 0.9;
+  }
+}
+
+/* 星际背景层 */
+.hero-starfield {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(ellipse at center, rgba(56, 178, 172, 0.05) 0%, transparent 70%);
+}
+
+.hero-star {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  background: rgba(56, 178, 172, 0.8);
+  box-shadow: 0 0 4px rgba(56, 178, 172, 0.6);
+  border-radius: 50%;
+  animation: starfield 12s linear infinite;
+}
+
+.hero-star.bright {
+  width: 2px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 12px rgba(56, 178, 172, 0.4);
+}
+
+.hero-nebula {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(56, 178, 172, 0.2) 0%, rgba(56, 178, 172, 0.1) 40%, transparent 70%);
+  border-radius: 50%;
+  animation: nebula-swirl 15s linear infinite;
+  pointer-events: none;
+  filter: blur(1px);
+}
+
+.hero-cosmic-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  border: 2px solid rgba(56, 178, 172, 0.4);
+  border-radius: 50%;
+  animation: cosmic-pulse 3s ease-in-out infinite;
+  pointer-events: none;
+  box-shadow: 0 0 30px rgba(56, 178, 172, 0.2), inset 0 0 30px rgba(56, 178, 172, 0.1);
+}
+
+.hero-data-stream {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(56, 178, 172, 0.6), transparent);
+  animation: data-stream 6s linear infinite;
+  pointer-events: none;
+}
+
+.hero-quantum-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(56, 178, 172, 0.8);
+  border-radius: 50%;
+  animation: quantum-particle 3s ease-out infinite;
+  pointer-events: none;
+}
+
+.hero-civilization-core {
+  position: absolute;
+  top: 50%;
+  left: 70%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(56, 178, 172, 0.9) 0%,
+    rgba(45, 212, 191, 0.7) 20%,
+    rgba(34, 197, 94, 0.5) 40%,
+    rgba(56, 178, 172, 0.3) 60%,
+    rgba(20, 184, 166, 0.1) 80%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  animation: civilized-breath 4s ease-in-out infinite;
+  pointer-events: none;
+  box-shadow: 
+    0 0 50px rgba(56, 178, 172, 0.5),
+    0 0 100px rgba(45, 212, 191, 0.3),
+    inset 0 0 80px rgba(56, 178, 172, 0.2);
+  border: 1px solid rgba(56, 178, 172, 0.3);
+  z-index: 10;
+}
+
+.hero-holographic-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(56, 178, 172, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 178, 172, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: holographic-grid 10s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hero-energy-orb {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, rgba(56, 178, 172, 1) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: energy-orb 8s linear infinite;
+  pointer-events: none;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .hero-nebula {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .hero-cosmic-pulse {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .hero-civilization-core {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-nebula {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .hero-cosmic-pulse {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .hero-civilization-core {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* 性能优化：减少动画数量在低性能设备上 */
+@media (prefers-reduced-motion: reduce) {
+  .hero-starfield,
+  .hero-nebula,
+  .hero-cosmic-pulse,
+  .hero-data-stream,
+  .hero-quantum-particle,
+  .hero-civilization-core,
+  .hero-holographic-overlay,
+  .hero-energy-orb {
+    animation: none;
+  }
+}
+
+/* 淡入动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.hero-animation-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  animation: fadeIn 1.5s ease-out forwards;
+}
+
+/* 移动端性能优化 */
+@media (max-width: 768px) {
+  .hero-star,
+  .hero-quantum-particle {
+    will-change: transform, opacity;
+  }
+  
+  .hero-nebula,
+  .hero-cosmic-pulse,
+  .hero-civilization-core {
+    will-change: transform, opacity;
+  }
+}
+
+/* 使用transform3d提升性能 */
+.hero-star,
+.hero-nebula,
+.hero-cosmic-pulse,
+.hero-civilization-core,
+.hero-quantum-particle,
+.hero-energy-orb {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+}
