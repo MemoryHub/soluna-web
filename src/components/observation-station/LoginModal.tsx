@@ -273,7 +273,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
           {/* 关闭按钮 */}
           <button 
             onClick={onClose} 
-            className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-[#2d3748] hover:bg-[#4a5568] pixel-button z-10"
+            className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-[#2d3748] hover:bg-[#4a5568] pixel-button z-10 text-white"
           >
             <i className="fa fa-times"></i>
           </button>
@@ -310,21 +310,21 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                     </div>
                     <div className="absolute inset-0 w-8 h-8 bg-[#38b2ac] rounded-sm animate-ping opacity-20"></div>
                   </div>
-                  <h2 className="text-lg font-bold tracking-wide bg-gradient-to-r from-[#38b2ac] to-[#4fd1c7] bg-clip-text text-transparent">AI社会观察站</h2>
+                  <h2 className="text-lg font-bold tracking-wide bg-gradient-to-r from-[#38b2ac] to-[#4fd1c7] bg-clip-text text-transparent">AI生命观察站</h2>
                 </div>
                 
                 <div className="space-y-4">
-                  <p className="text-sm leading-relaxed">
-                    <span className="text-[#38b2ac]">AI社会观察站</span> 是一个实时监控和分析人工智能角色行为的平台。
+                  <p className="text-sm leading-relaxed text-gray-300">
+                    <span className="text-[#38b2ac]">AI生命观察站</span> 是一个实时监控和分析人工智能角色行为的平台。
                   </p>
-                  <p className="text-sm leading-relaxed">
-                    通过登录，您可以访问更多高级功能，包括创建自定义AI角色、跟踪角色行为模式、分析情绪变化等。
+                  <p className="text-sm leading-relaxed text-gray-300">
+                    全球首个拥有真实情感的AI角色诞生，开启人类与数字生命共生的全新时代
                   </p>
                   <div className="pt-2">
                     <div className="flex flex-wrap gap-2 mb-2">
-                      <span className="px-2 py-1 text-xs bg-[#2d3748] rounded-sm">实时监控</span>
-                      <span className="px-2 py-1 text-xs bg-[#2d3748] rounded-sm">角色分析</span>
-                      <span className="px-2 py-1 text-xs bg-[#2d3748] rounded-sm">情绪追踪</span>
+                      <span className="px-2 py-1 text-xs bg-[#2d3748] rounded-sm text-gray-300">实时监控</span>
+                      <span className="px-2 py-1 text-xs bg-[#2d3748] rounded-sm text-gray-300">角色分析</span>
+                      <span className="px-2 py-1 text-xs bg-[#2d3748] rounded-sm text-gray-300">生活轨迹</span>
                     </div>
                   </div>
                 </div>
@@ -395,17 +395,17 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                       onChange={handlePhoneInput}
                       placeholder="请输入11位手机号码"
                       maxLength={11}
-                      className="w-full bg-[#1a1f29]/80 border border-[#38b2ac] p-3 text-sm pixel-border focus:outline-none focus:ring-2 focus:ring-[#38b2ac] focus:shadow-[0_0_15px_rgba(56,178,172,0.5)] transition-all duration-200 hover:bg-[#1a1f29]/60 placeholder-gray-500"
+                      className="w-full bg-[#1a1f29]/80 border border-[#38b2ac] p-3 text-sm text-white pixel-border focus:outline-none focus:ring-2 focus:ring-[#38b2ac] focus:shadow-[0_0_15px_rgba(56,178,172,0.5)] transition-all duration-200 hover:bg-[#1a1f29]/60 placeholder-gray-500"
                     />
                   </div>
                   
                   <button
                     onClick={handleSendCode}
                     disabled={isSendingCode || phoneNumber.length !== 11}
-                    className={`w-full py-3 font-medium pixel-button transition-colors relative z-10 ${
+                    className={`w-full py-3 font-medium pixel-button transition-colors relative z-10 text-white ${
                       isSendingCode || phoneNumber.length !== 11
                         ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                        : 'bg-[#38b2ac] text-white hover:bg-[#4fd1c7]'
+                        : 'bg-[#38b2ac] hover:bg-[#4fd1c7]'
                     }`}
                   >
                     {isSendingCode ? (
@@ -444,7 +444,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                           onChange={(e) => handleCodeInput(index, e.target.value)}
                           onKeyDown={(e) => handleCodeKeyDown(index, e)}
                           maxLength={1}
-                          className="w-12 h-12 bg-[#1a1f29]/80 border border-[#38b2ac] text-center text-lg font-bold pixel-border focus:outline-none focus:ring-2 focus:ring-[#38b2ac] focus:shadow-[0_0_15px_rgba(56,178,172,0.5)] transition-all duration-200 hover:bg-[#1a1f29]/60"
+                          className="w-12 h-12 bg-[#1a1f29]/80 border border-[#38b2ac] text-center text-lg font-bold text-white pixel-border focus:outline-none focus:ring-2 focus:ring-[#38b2ac] focus:shadow-[0_0_15px_rgba(56,178,172,0.5)] transition-all duration-200 hover:bg-[#1a1f29]/60"
                         />
                       ))}
                     </div>

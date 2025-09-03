@@ -1,22 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "../styles/hero-animations.css";
 import { UserProvider } from '../hooks/useUser';
 import PlausibleProvider from 'next-plausible'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Soluna | AI角色观察",
+  title: "Soluna AI | AI生命观察",
   description: "当AI拥有情感，人类将找到真正的共生伙伴",
 };
 
@@ -32,13 +21,11 @@ export default function RootLayout({
     <html lang="zh-CN">
       <head>
         <link 
-          href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" 
           rel="stylesheet" 
         />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased">
         <PlausibleProvider 
           domain={domain}
           enabled={enabled}

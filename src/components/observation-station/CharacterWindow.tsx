@@ -44,7 +44,6 @@ export default function CharacterWindow({
   // 游戏状态
   const [selected, setSelected] = useState(false);
   const [glitchActive, setGlitchActive] = useState(false);
-  const [flickerActive, setFlickerActive] = useState(false);
   const [currentAnimation, setCurrentAnimation] = useState('idle');
   const animationIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -321,21 +320,21 @@ export default function CharacterWindow({
     >
       <div className={`border-4 ${getMoodColor(mood)} pixel-border bg-[#0f172a] overflow-hidden relative group ${glitchActive ? 'glitch' : ''} ${selected ? 'ring-4 ring-yellow-400' : ''} w-full max-w-[280px] mx-auto`}>
         {/* 扑克牌风格角落装饰 */}
-          <div className="absolute top-1 left-2 text-[#e53e3e] font-bold text-lg opacity-30">
+          <div className="pixel-font absolute top-1 left-2 text-[#e53e3e] font-bold text-lg opacity-30">
             {index % 13 + 1}
           </div>
-          <div className="absolute bottom-1 right-2 text-[#e53e3e] font-bold text-lg opacity-30 rotate-180">
+          <div className="pixel-font absolute bottom-1 right-2 text-[#e53e3e] font-weight:1000 text-lg opacity-30 rotate-180">
             {index % 13 + 1}
           </div>
 
           <div className="bg-[#1e293b] px-2 py-1 sm:px-3 sm:py-1.5 text-xs flex justify-between items-center border-b-4 border-black overflow-hidden whitespace-nowrap text-ellipsis">
           <div className="flex items-center gap-2">
-              <span className="font-bold text-white pixel-font">{character.name}</span>
-            <span className="text-gray-400 text-[10px] hidden sm:inline">{character.age}岁 · {character.occupation}</span>
+              <span className="font-bold text-white">{character.name}</span>
+            <span className="pixel-font text-gray-400 text-[10px] hidden sm:inline">{character.age}岁 · {character.occupation}</span>
             </div>
           <div className="flex items-center gap-2 bg-black/50 px-2 py-1 rounded-sm">
               <span className={`w-3 h-3 ${getMoodDotColor(mood)} rounded-full pixel-border`}></span>
-              <span className="text-gray-300 text-[10px] font-mono">{currentTime}</span>
+              <span className="pixel-font text-gray-300 text-[10px] font-mono">{currentTime}</span>
             </div>
         </div>
         
@@ -399,10 +398,10 @@ export default function CharacterWindow({
         {/* 互动统计显示 */}
         <div className="absolute bottom-8 right-2 text-[8px] bg-black/60 text-white px-1.5 py-0.5 rounded-sm opacity-70 z-10">
           <div className="flex gap-2">
-            <span className="text-red-400">🍖{formatNumber(stats.feed)}</span>
-            <span className="text-green-400">🤗{formatNumber(stats.comfort)}</span>
-            <span className="text-blue-400">💼{formatNumber(stats.overtime)}</span>
-            <span className="text-cyan-400">🪣{formatNumber(stats.water)}</span>
+            <span className="pixel-font text-red-400">🍖{formatNumber(stats.feed)}</span>
+            <span className="pixel-font text-green-400">🤗{formatNumber(stats.comfort)}</span>
+            <span className="pixel-font text-blue-400">💼{formatNumber(stats.overtime)}</span>
+            <span className="pixel-font text-cyan-400">🪣{formatNumber(stats.water)}</span>
           </div>
         </div>
         

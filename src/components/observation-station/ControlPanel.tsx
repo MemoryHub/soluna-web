@@ -88,7 +88,7 @@ export default function ControlPanel({
               <i className="fa fa-plus mr-1"></i> 添加观察对象
             </button>
             <div className="text-xs text-gray-500">
-              已观察 <span className="text-monitor-highlight"><span className="text-[#38b2ac]">{characterCount}</span></span> 个角色
+              已观察 <span className="text-monitor-highlight"><span className="pixel-font text-[#38b2ac]">{characterCount}</span></span> 个角色
             </div>
             {onRefresh && (
               <button
@@ -118,7 +118,7 @@ export default function ControlPanel({
                   // 仍然调用父组件的回调函数，以便功能完成后可以正常工作
                   onTimeSpeedChange(speed.value);
                 }}
-                className={`px-2 py-1 text-xs rounded-sm transition pixel-button ${timeSpeed === speed.value ? 'bg-[#38b2ac] text-black' : 'bg-[#2d3748] hover:bg-gray-700'}`}
+                className={`pixel-font px-2 py-1 text-xs rounded-sm transition pixel-button ${timeSpeed === speed.value ? 'bg-[#38b2ac] text-black' : 'bg-[#2d3748] hover:bg-gray-700'}`}
               >
                 {speed.icon && <i className={`fa ${speed.icon}`}></i>}
                 {speed.label}
@@ -138,7 +138,7 @@ export default function ControlPanel({
               <i className="fa fa-plus mr-2"></i> 添加观察对象
             </button>
             <div className="text-sm text-gray-500 w-full text-center">
-              已观察 <span className="text-monitor-highlight"><span className="text-[#38b2ac]">{characterCount}</span></span> 个角色
+              已观察 <span className="text-monitor-highlight"><span className="pixel-font text-[#38b2ac]">{characterCount}</span></span> 个角色
             </div>
           </div>
           

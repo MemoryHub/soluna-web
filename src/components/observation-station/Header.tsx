@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useUser } from '../../hooks/useUser';
+import InviteModal from '../common/InviteModal';
 
 export default function Header() {
   const [currentTime, setCurrentTime] = useState('');
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const { isLoggedIn, userInfo, login, logout } = useUser();
 
   // 更新时间
@@ -33,8 +35,22 @@ export default function Header() {
             <i className="fa fa-eye text-xs"></i>
           </div>
           <h1 className="text-base sm:text-lg tracking-wide">
-            AI社会观察站 <span className="text-xs text-[#38b2ac] hidden sm:inline">| 实时监控中</span>
+            AI生命观察站 <span className="text-xs text-[#38b2ac] hidden sm:inline">| 实时监控中</span>
           </h1>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="py-1 px-2 bg-[#4299e1] text-white text-xs rounded-sm hover:bg-[#3182ce] transition-colors ml-2"
+          >
+            <i className="fa fa-home mr-1"></i>
+            首页
+          </button>
+          <button
+            onClick={() => setShowInviteModal(true)}
+            className="py-1 px-2 bg-[#38b2ac] text-white text-xs rounded-sm hover:bg-[#319795] transition-colors"
+          >
+            <i className="fa fa-key mr-1"></i>
+            获取邀请码
+          </button>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs">
           <div className="flex items-center gap-1">
@@ -61,7 +77,7 @@ export default function Header() {
             <span className="w-2 h-2 bg-red-500 inline-block"></span>
             <span className="hidden sm:inline">愤怒</span>
           </div>
-          <div className="text-gray-500">
+          <div className="pixel-font text-gray-500">
             <i className="fa fa-clock-o mr-1"></i>
             <span>{currentTime}</span>
           </div>
@@ -72,7 +88,7 @@ export default function Header() {
               {/* 显示用户手机号 */}
               <div className="text-[#38b2ac]">
                 <i className="fa fa-eye mr-1"></i>
-                <span>编号:{userInfo?.phone_number ? userInfo.phone_number.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '未知'}</span>
+                <span className="pixel-font">编号:{userInfo?.phone_number ? userInfo.phone_number.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '未知'}</span>
               </div>
               {/* 直接添加登出按钮 */}
               <button
@@ -94,10 +110,10 @@ export default function Header() {
           )}
         </div>
       </header>
-      
-
-      
-
+      <InviteModal 
+        isOpen={showInviteModal} 
+        onClose={() => setShowInviteModal(false)} 
+      />
     </>
   );
 }

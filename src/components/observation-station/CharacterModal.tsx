@@ -376,7 +376,7 @@ export default function CharacterModal({
             <div className="flex-1">
               <div className="flex flex-col gap-2 mb-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm">{character.age}岁 · {character.occupation}</span>
+              <span className="pixel-font text-sm">{character.age}岁 · {character.occupation}</span>
               <span className={`text-xs ${mbtiColors[character.mbti_type] || mbtiColors.default} px-2 py-0.5 rounded text-white`}>{character.mbti_type}</span>
               <span className="text-xs bg-[#2d3748] px-2 py-0.5 rounded flex items-center">
                 {character.gender === '男' ? (
@@ -389,7 +389,7 @@ export default function CharacterModal({
               <div className="ml-auto flex items-center text-xs bg-[#2d3748]/70 px-2 py-0.5 rounded border border-[#4a5568]">
                 <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1 ${getMoodBarColor(moodType)}`}></span>
                 情绪: {character.mood}
-                <span className="ml-1 text-[#f6ad55]">({moodScore}/100)</span>
+                <span className="pixel-font ml-1 text-[#f6ad55]">({moodScore}/100)</span>
                 <div className="ml-2 w-16 h-1.5 bg-[#1a202c] rounded-sm overflow-hidden border border-[#4a5568]">
                   <div className={`h-full ${getMoodBarColor(moodType)} pixel-bar`} style={{ width: `${moodScore}%` }}></div>
                 </div>
@@ -621,7 +621,7 @@ export default function CharacterModal({
                   <div className="relative overflow-hidden bg-[#2d3748]/50 p-1 rounded border border-[#4a5568]">
                     <div className="flex justify-between text-[10px] mb-1 font-mono">
                       <span className="text-gray-300">开放性 (OPENNESS)</span>
-                      <span className="text-[#90cdf4]">{(character.big5?.openness || 0).toFixed(1)}</span>
+                      <span className="pixel-font text-[#90cdf4]">{(character.big5?.openness || 0).toFixed(1)}</span>
                     </div>
                     <div className="h-2 bg-[#1a202c] rounded-sm overflow-hidden border border-[#4a5568]">
                       <div className="h-full bg-[#90cdf4] pixel-bar" style={{ width: `${(character.big5?.openness || 0) * 100}%` }}></div>
@@ -630,7 +630,7 @@ export default function CharacterModal({
                   <div className="relative overflow-hidden bg-[#2d3748]/50 p-1 rounded border border-[#4a5568]">
                     <div className="flex justify-between text-[10px] mb-1 font-mono">
                       <span className="text-gray-300">尽责性 (CONSCIENTIOUS)</span>
-                      <span className="text-[#f6ad55]">{(character.big5?.conscientiousness || 0).toFixed(1)}</span>
+                      <span className="pixel-font text-[#f6ad55]">{(character.big5?.conscientiousness || 0).toFixed(1)}</span>
                     </div>
                     <div className="h-2 bg-[#1a202c] rounded-sm overflow-hidden border border-[#4a5568]">
                       <div className="h-full bg-[#f6ad55] pixel-bar" style={{ width: `${(character.big5?.conscientiousness || 0) * 100}%` }}></div>
@@ -639,7 +639,7 @@ export default function CharacterModal({
                   <div className="relative overflow-hidden bg-[#2d3748]/50 p-1 rounded border border-[#4a5568]">
                     <div className="flex justify-between text-[10px] mb-1 font-mono">
                       <span className="text-gray-300">外倾性 (EXTRAVERSION)</span>
-                      <span className="text-[#48bb78]">{(character.big5?.extraversion || 0).toFixed(1)}</span>
+                      <span className="pixel-font text-[#48bb78]">{(character.big5?.extraversion || 0).toFixed(1)}</span>
                     </div>
                     <div className="h-2 bg-[#1a202c] rounded-sm overflow-hidden border border-[#4a5568]">
                       <div className="h-full bg-[#48bb78] pixel-bar" style={{ width: `${(character.big5?.extraversion || 0) * 100}%` }}></div>
@@ -648,7 +648,7 @@ export default function CharacterModal({
                   <div className="relative overflow-hidden bg-[#2d3748]/50 p-1 rounded border border-[#4a5568]">
                     <div className="flex justify-between text-[10px] mb-1 font-mono">
                       <span className="text-gray-300">宜人性 (AGREEABLENESS)</span>
-                      <span className="text-[#ed8936]">{(character.big5?.agreeableness || 0).toFixed(1)}</span>
+                      <span className="pixel-font text-[#ed8936]">{(character.big5?.agreeableness || 0).toFixed(1)}</span>
                     </div>
                     <div className="h-2 bg-[#1a202c] rounded-sm overflow-hidden border border-[#4a5568]">
                       <div className="h-full bg-[#ed8936] pixel-bar" style={{ width: `${(character.big5?.agreeableness || 0) * 100}%` }}></div>
@@ -657,7 +657,7 @@ export default function CharacterModal({
                   <div className="relative overflow-hidden md:col-span-2 bg-[#2d3748]/50 p-1 rounded border border-[#4a5568]">
                     <div className="flex justify-between text-[10px] mb-1 font-mono">
                       <span className="text-gray-300">神经质 (NEUROTICISM)</span>
-                      <span className="text-[#f56565]">{(character.big5?.neuroticism || 0).toFixed(1)}</span>
+                      <span className="pixel-font text-[#f56565]">{(character.big5?.neuroticism || 0).toFixed(1)}</span>
                     </div>
                     <div className="h-2 bg-[#1a202c] rounded-sm overflow-hidden border border-[#4a5568]">
                       <div className="h-full bg-[#f56565] pixel-bar" style={{ width: `${(character.big5?.neuroticism || 0) * 100}%` }}></div>
@@ -776,12 +776,13 @@ export default function CharacterModal({
               {character.event_profile?.life_path && Array.isArray(character.event_profile.life_path) ? (
                 character.event_profile.life_path
                   .slice()
+                  .filter(event => event?.start_time && new Date(event.start_time) <= new Date())
                   .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
                   .reverse()
                   .slice(0, 5)
                   .map((event, index) => (
                     <div key={event?.event_id || index} className="flex gap-3">
-                      <div className="w-20 text-center text-xs text-gray-500 pt-1">
+                      <div className="w-20 text-center text-xs pixel-font text-gray-500 pt-1">
                         {event?.start_time ? new Date(event.start_time).toLocaleString('zh-CN', { 
                           year: 'numeric', 
                           month: '2-digit', 

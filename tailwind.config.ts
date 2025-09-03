@@ -22,6 +22,7 @@ const config: Config = {
         }
       },
       fontFamily: {
+        sans: ['Source Han Sans', 'Source Han Sans Fallback', 'system-ui', 'sans-serif'],
         pixel: ['Press Start 2P', 'WenQuanYi Micro Hei Mono', 'SimHei', 'monospace'],
         mono: ['Courier New', 'monospace']
       }

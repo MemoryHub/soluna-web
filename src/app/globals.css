@@ -24,11 +24,40 @@
   }
 }
 
+/* 思源黑体字体定义 */
+@font-face {
+  font-family: 'Source Han Sans';
+  src: local('Source Han Sans SC'), local('Source Han Sans CN'), local('Noto Sans CJK SC'), local('思源黑体');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 备用字体定义 */
+@font-face {
+  font-family: 'Source Han Sans Fallback';
+  src: local('PingFang SC'), local('Microsoft YaHei'), local('SimHei'), local('WenQuanYi Micro Hei');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-pixel, 'Press Start 2P', 'WenQuanYi Micro Hei Mono', 'SimHei', monospace);
+  font-family: 'Source Han Sans', 'Source Han Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   image-rendering: pixelated;
+}
+
+/* 像素字体 - 用于特殊场景 */
+.pixel-font {
+  font-family: 'Press Start 2P', 'WenQuanYi Micro Hei Mono', 'SimHei', monospace;
+  font-weight: normal;
 }
 
 /* 像素边框效果 */

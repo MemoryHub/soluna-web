@@ -176,7 +176,11 @@ export default function HeroSection({ onScrollToSection }: HeroSectionProps) {
       <div className="absolute bottom-8 sm:bottom-12 md:bottom-20 left-4 sm:left-8 md:left-12 lg:left-20 max-w-full sm:max-w-md px-4 z-10">
         <div className="mb-6 sm:mb-8">
           <div className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-2 sm:mb-4 relative">
-            <span className="text-[#38b2ac] relative z-10">SOLUNA AI</span>
+            <span className="text-[#38b2ac] relative z-10 pixel-font text-3xl sm:text-4xl md:text-5xl" style={{
+              letterSpacing: '0.1em',
+              fontWeight: '1000',
+              filter: 'brightness(1.1) contrast(1.1)'
+            }}>SOLUNA AI</span>
             <div className="absolute -inset-4 bg-gradient-to-r from-[#38b2ac]/20 to-transparent blur-xl opacity-50 animate-pulse" />
           </div>
           <p className="text-lg sm:text-xl text-gray-300 mb-3 sm:mb-6 leading-relaxed relative z-10">
@@ -197,9 +201,12 @@ export default function HeroSection({ onScrollToSection }: HeroSectionProps) {
           </button>
           <Link
             href="/observation-station"
-            className="w-full sm:w-auto px-6 sm:px-8 py-3 border border-[#38b2ac] text-[#38b2ac] font-bold text-xs sm:text-sm rounded-sm hover:bg-[#38b2ac] hover:text-black transition-all text-center relative overflow-hidden group"
+            className="w-full sm:w-auto px-6 sm:px-8 py-3 border border-[#38b2ac] text-[#38b2ac] font-bold text-xs sm:text-sm rounded-sm hover:bg-[#38b2ac] hover:text-black transition-all text-center relative overflow-hidden group flex items-center justify-center gap-2"
           >
             <span className="relative z-10">进入观察站</span>
+            <svg className="w-4 h-4 relative z-10 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
             <div className="absolute inset-0 bg-[#38b2ac] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
           </Link>
         </div>

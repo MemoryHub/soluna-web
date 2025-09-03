@@ -81,7 +81,7 @@ export default function Pagination({
   }, [currentPage]);
 
   return (
-    <div className="flex flex-col items-center gap-4 mt-8 px-2">
+    <div className="pixel-font flex flex-col items-center gap-4 mt-8 px-2">
       {/* 顶部信息 */}
       <div className="text-xs text-gray-500 font-mono w-full text-center">
         第 {currentPage} 页，共 {totalPages} 页
