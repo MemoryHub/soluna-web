@@ -281,6 +281,19 @@ export default function ObservationStation() {
     return () => clearInterval(interval);
   }, []);
 
+  // 防止抽屉打开时底层滚动
+  useEffect(() => {
+    if (isDrawerOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isDrawerOpen]);
+
   const handleCharacterClick = (character: Character) => {
     setSelectedCharacter(character);
     setIsModalOpen(true);
@@ -395,38 +408,38 @@ export default function ObservationStation() {
           
           {/* 移动端 - 抽屉式字母筛选组件 */}
           <div 
-            className={`fixed inset-y-0 right-0 w-32 bg-[#232a39] border-l border-[#2d3748] z-40 transition-transform duration-300 ease-in-out transform ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'} lg:hidden`}
+            className={`fixed inset-0 bg-[rgba(0,0,0,0.5)] z-50 lg:hidden transition-opacity duration-300 ${isDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+            onClick={() => setIsDrawerOpen(false)}
           >
-            <div className="p-4 h-full">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-sm font-bold text-[#38b2ac]">名字首字母</h3>
-                <button 
-                  className="text-gray-400 hover:text-white"
-                  onClick={() => setIsDrawerOpen(false)}
-                  aria-label="关闭字母筛选器"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="sticky top-4">
-                <AlphabetFilter
-                  selectedLetter={selectedLetter}
-                  onLetterSelect={(letter) => {
-                    handleLetterSelect(letter);
-                    setIsDrawerOpen(false);
-                  }}
-                />
+            <div 
+              className={`fixed top-16 right-0 bottom-0 w-32 bg-[#232a39] border-l border-[#2d3748] transition-transform duration-300 ease-in-out transform ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-4 h-full flex flex-col">
+                <div className="flex justify-between items-center mb-4 flex-shrink-0">
+                  <h3 className="text-sm font-bold text-[#38b2ac]">名字首字母</h3>
+                  <button 
+                    className="text-gray-400 hover:text-white"
+                    onClick={() => setIsDrawerOpen(false)}
+                    aria-label="关闭字母筛选器"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto" style={{ overscrollBehavior: 'contain' }}>
+                  <div className="pb-4">
+                    <AlphabetFilter
+                      selectedLetter={selectedLetter}
+                      onLetterSelect={(letter) => {
+                        handleLetterSelect(letter);
+                        setIsDrawerOpen(false);
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          
-          {/* 抽屉遮罩层 */}
-            {isDrawerOpen && (
-              <div 
-                className="fixed inset-0 bg-[rgba(0,0,0,0.5)] z-30 lg:hidden"
-                onClick={() => setIsDrawerOpen(false)}
-              ></div>
-            )}
         </div>
         {/* 分页组件 */}
         {observations.length > 0 && (

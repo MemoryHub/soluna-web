@@ -783,13 +783,24 @@ export default function CharacterModal({
                   .map((event, index) => (
                     <div key={event?.event_id || index} className="flex gap-3">
                       <div className="w-20 text-center text-xs pixel-font text-gray-500 pt-1">
-                        {event?.start_time ? new Date(event.start_time).toLocaleString('zh-CN', { 
-                          year: 'numeric', 
-                          month: '2-digit', 
-                          day: '2-digit', 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        }).replace(/\//g, '-') : '未知时间'}
+                        {event?.start_time ? (() => {
+                          // 检查是否为YYYY格式字符串
+                          if (/^\d{4}$/.test(event.start_time)) {
+                            return event.start_time;
+                          }
+                          // 完整日期格式
+                          const date = new Date(event.start_time);
+                          if (isNaN(date.getTime())) {
+                            return event.start_time; // 如果解析失败，返回原始值
+                          }
+                          return date.toLocaleString('zh-CN', { 
+                            year: 'numeric', 
+                            month: '2-digit', 
+                            day: '2-digit', 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          }).replace(/\//g, '-');
+                        })() : '未知时间'}
                       </div>
                       <div className="flex-1 bg-[#2d3748]/50 p-2 rounded-sm text-xs">
                         <p>{event?.description || '无描述信息'}</p>
