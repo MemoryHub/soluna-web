@@ -199,6 +199,151 @@ body {
   background-size: 10px 100%;
 }
 
+/* 情绪过渡动画 */
+@keyframes emotion-shake-gentle {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-1px) rotate(-0.5deg); }
+  75% { transform: translateX(1px) rotate(0.5deg); }
+}
+
+@keyframes emotion-shake-medium {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px) rotate(-1deg); }
+  20%, 40%, 60%, 80% { transform: translateX(2px) rotate(1deg); }
+}
+
+@keyframes emotion-shake-strong {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px) rotate(-2deg); }
+  20%, 40%, 60%, 80% { transform: translateX(3px) rotate(2deg); }
+}
+
+@keyframes emotion-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes emotion-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+@keyframes color-transition {
+  0% { filter: hue-rotate(0deg) brightness(1); }
+  50% { filter: hue-rotate(180deg) brightness(1.2); }
+  100% { filter: hue-rotate(360deg) brightness(1); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 5px currentColor; }
+  50% { box-shadow: 0 0 20px currentColor, 0 0 30px currentColor; }
+}
+
+/* 情绪动画类 */
+.emotion-shake-gentle {
+  animation: emotion-shake-gentle 0.6s ease-in-out;
+}
+
+.emotion-shake-medium {
+  animation: emotion-shake-medium 0.8s ease-in-out;
+}
+
+.emotion-shake-strong {
+  animation: emotion-shake-strong 1s ease-in-out;
+}
+
+.emotion-bounce {
+  animation: emotion-bounce 0.5s ease-in-out;
+}
+
+.emotion-pulse {
+  animation: emotion-pulse 0.8s ease-in-out;
+}
+
+.color-transition {
+  animation: color-transition 1s ease-in-out;
+}
+
+.glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* 边框颜色过渡 */
+.border-color-transition {
+  transition: border-color 0.8s ease-in-out, box-shadow 0.8s ease-in-out;
+}
+
+.border-color-transition.glow {
+  transition: border-color 0.8s ease-in-out, box-shadow 0.8s ease-in-out;
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* 情绪点过渡 */
+.mood-dot-transition {
+  transition: background-color 0.6s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.mood-dot-transition:hover {
+  transform: scale(1.2);
+}
+
+.mood-dot-transition.pulse {
+  animation: emotion-pulse 0.6s ease-in-out;
+}
+
+/* 文字颜色过渡 */
+.text-color-transition {
+  transition: color 0.6s ease-in-out;
+}
+
+/* 表情符号过渡 */
+.emoji-transition {
+  transition: transform 0.3s ease-in-out;
+}
+
+.emoji-transition.bounce {
+  animation: emotion-bounce 0.5s ease-in-out;
+}
+
+.emoji-transition:hover {
+  transform: scale(1.2) rotate(10deg);
+}
+
+/* 背景颜色过渡 */
+.bg-color-transition {
+  transition: background-color 0.8s ease-in-out;
+}
+
+/* 呼吸动画 */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+/* 浮动动画 */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* 闪烁动画 */
+@keyframes sparkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
 @keyframes breathe {
   0%, 100% {
     transform: scale(1);

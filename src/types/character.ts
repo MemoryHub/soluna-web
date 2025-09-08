@@ -9,8 +9,10 @@ export interface Event {
   location: string;
   participants: string[];
   outcome: string;
-  emotion_score: number;
   end_time?: string;
+  pleasure_score: number;  // PAD三维度：愉悦度 (-100到100)
+  arousal_score: number;  // PAD三维度：唤醒度 (-100到100)
+  dominance_score: number; // PAD三维度：支配度 (-100到100)
   dependencies?: string[];
 }
 
@@ -55,6 +57,15 @@ export interface Character {
   mood_swings: string;
   memory: Record<string, string>;
   event_profile?: EventProfile;
+  emotion?: {
+    color: string;
+    vibe: string;
+    emoji: string;
+    current_emotion_score: number;
+    traditional: string;
+    description: string;
+    emotion_type: string;
+  };
   character_id: string;
   is_preset: boolean;
   created_at?: number; // 角色创建时间戳
@@ -74,6 +85,15 @@ export interface CharacterObservation {
     comfort: number;
     overtime: number;
     water: number;
+  };
+  emotion?: {
+    color: string;
+    vibe: string;
+    emoji: string;
+    current_emotion_score: number;
+    traditional: string;
+    description: string;
+    emotion_type: string;
   };
 }
 

@@ -387,11 +387,11 @@ export default function CharacterModal({
                 {character.gender}
               </span>
               <div className="ml-auto flex items-center text-xs bg-[#2d3748]/70 px-2 py-0.5 rounded border border-[#4a5568]">
-                <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1 ${getMoodBarColor(moodType)}`}></span>
-                情绪: {character.mood}
-                <span className="pixel-font ml-1 text-[#f6ad55]">({moodScore}/100)</span>
+                <span className={`inline-block w-1.5 h-1.5 rounded-full mr-1 ${getMoodBarColor(moodType)}`} style={{ backgroundColor: character.emotion?.color || getMoodBarColor(moodType) }}></span>
+                情绪: {character.emotion?.emoji || '😐'} {character.emotion?.vibe || character.mood}
+                <span className="pixel-font ml-1 text-[#f6ad55]">({character.emotion?.current_emotion_score || moodScore}/100)</span>
                 <div className="ml-2 w-16 h-1.5 bg-[#1a202c] rounded-sm overflow-hidden border border-[#4a5568]">
-                  <div className={`h-full ${getMoodBarColor(moodType)} pixel-bar`} style={{ width: `${moodScore}%` }}></div>
+                  <div className={`h-full ${getMoodBarColor(moodType)} pixel-bar`} style={{ width: `${character.emotion?.current_emotion_score || moodScore}%`, backgroundColor: character.emotion?.color || '' }}></div>
                 </div>
               </div>
             </div>

@@ -282,13 +282,15 @@ export default function AddCharacterModal({ isOpen, onClose, onSave }: AddCharac
                 <div className="flex items-center gap-2 mb-1">
                   <span className="inline-block w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
                   <label className="text-xs text-gray-400 font-mono tracking-wider">角色名称</label>
+                  <span className="text-xs text-gray-500 font-mono">({name.length}/5)</span>
                 </div>
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-r from-[#38b2ac]/20 to-[#805ad5]/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
                   <input
                     type="text"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => setName(e.target.value.slice(0, 5))}
+                    maxLength={5}
                     className="w-full bg-[#0f172a] border border-[#38b2ac]/50 rounded-sm p-2.5 text-sm font-pixel focus:border-[#38b2ac] focus:outline-none z-10 relative"
                     placeholder="输入角色名称..."
                   />
@@ -355,12 +357,14 @@ export default function AddCharacterModal({ isOpen, onClose, onSave }: AddCharac
                 <div className="flex items-center gap-2 mb-1">
                   <span className="inline-block w-3 h-3 bg-blue-500 rounded-full animate-pulse"></span>
                   <label className="text-xs text-gray-400 font-mono tracking-wider">职业</label>
+                  <span className="text-xs text-gray-500 font-mono">({occupation.length}/6)</span>
                 </div>
                 <div className="relative group">
                   <input
                     type="text"
                     value={occupation}
-                    onChange={(e) => setOccupation(e.target.value)}
+                    onChange={(e) => setOccupation(e.target.value.slice(0, 6))}
+                    maxLength={6}
                     className="w-full bg-[#0f172a] border border-[#38b2ac]/50 rounded-sm p-2.5 text-sm font-pixel focus:border-[#38b2ac] focus:outline-none"
                     placeholder="输入职业..."
                   />
@@ -371,7 +375,8 @@ export default function AddCharacterModal({ isOpen, onClose, onSave }: AddCharac
               {/* 生成按钮 - 游戏风格 */}
               <button
                 onClick={handleSubmit}
-                className="w-full mt-8 relative overflow-hidden bg-gradient-to-r from-[#38b2ac] to-[#4299e1] text-black font-bold py-3 px-4 rounded-sm transition flex items-center justify-center gap-2 pixel-button"
+                disabled={!name || !age || !occupation || name.length === 0 || occupation.length === 0}
+                className="w-full mt-8 relative overflow-hidden bg-gradient-to-r from-[#38b2ac] to-[#4299e1] text-black font-bold py-3 px-4 rounded-sm transition flex items-center justify-center gap-2 pixel-button disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className="absolute inset-0 bg-gradient-to-r from-[#805ad5] to-[#38b2ac] opacity-0 hover:opacity-100 transition-opacity duration-300"></span>
                 <span className="relative z-10 flex items-center gap-2">

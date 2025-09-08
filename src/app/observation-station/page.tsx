@@ -6,6 +6,8 @@ import { Character, MoodType, CharacterObservation } from '@/types/character';
 import { apiService } from '@/services/api';
 import { eventApiService } from '@/services/event_api';
 import { interactionApiService } from '@/services/interaction_api';
+import { emotionApiService } from '@/services/emotion_api';
+import type { EmotionData } from '@/types/emotion';
 import { useObservationEffects } from '@/hooks/useObservationEffects';
 import Header from '@/components/observation-station/Header';
 import ControlPanel from '@/components/observation-station/ControlPanel';
@@ -40,19 +42,29 @@ export default function ObservationStation() {
   // 使用动态效果hook
   useObservationEffects();
 
-  // 模拟角色观察数据
+  // 角色观察数据
   const generateObservations = (chars: Character[]): CharacterObservation[] => {
     return chars.map(char => ({
       character: char,
       currentAction: getRandomAction(char),
       currentTime: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-      mood: getMoodFromCharacter(char),
+      // mood字段暂时弃用，由emotion代替
+      mood: getMoodFromCharacter(char), 
       hint: Math.random() > 0.7 ? getRandomHint(char) : undefined,
       interactionStats: (char as any).interactionStats || {
         feed: 0,
         comfort: 0,
         overtime: 0,
         water: 0
+      },
+      emotion: (char as any).emotion || {
+        color: '',
+        vibe: '',
+        emoji: '',
+        current_emotion_score: 0,
+        traditional: '',
+        description: '',
+        emotion_type: ''
       }
     }));
   };
@@ -137,14 +149,15 @@ export default function ObservationStation() {
         
         // 如果有角色数据
         if (characters.length > 0) {
-          // 批量获取事件配置和互动统计数据（放入独立的try-catch块）
+          // 批量获取事件配置、互动统计和情绪数据（放入独立的try-catch块）
           try {
             const characterIds = characters.map(character => character.character_id);
             
-            // 并行获取事件配置和互动统计数据，使用allSettled确保一个失败不影响另一个
-            const [eventProfilesResult, interactionStatsResult] = await Promise.allSettled([
+            // 并行获取事件配置、互动统计和情绪数据，使用allSettled确保一个失败不影响其他
+            const [eventProfilesResult, interactionStatsResult, emotionsResult] = await Promise.allSettled([
               eventApiService.getEventProfilesByCharacterIds(characterIds),
-              interactionApiService.getBatchInteractionStats(characterIds)
+              interactionApiService.getBatchInteractionStats(characterIds),
+              emotionApiService.getEmotionsByCharacterIds(characterIds)
             ]);
             
             // 处理事件配置数据
@@ -162,12 +175,22 @@ export default function ObservationStation() {
             } else {
               console.error('获取互动统计数据失败:', interactionStatsResult.reason);
             }
-            // 将事件配置和互动统计数据合并到角色数据中
+
+            // 处理情绪数据
+            let emotions = {};
+            if (emotionsResult.status === 'fulfilled') {
+              emotions = emotionsResult.value.data;
+            } else {
+              console.error('获取情绪数据失败:', emotionsResult.reason);
+            }
+            // 将事件配置、互动统计和情绪数据合并到角色数据中
             const charactersWithData = characters.map(character => {
               const stats = (interactionStats as { [key: string]: any })[character.character_id];
+              const emotion = (emotions as { [key: string]: EmotionData })[character.character_id];
               return {
                 ...character,
                 event_profile: (eventProfiles as { [key: string]: any })[character.character_id]?.[0] || null,
+                emotion: emotion || null,
                 interactionStats: stats ? {
                   feed: stats.feed_count || 0,
                   comfort: stats.comfort_count || 0,
@@ -383,6 +406,7 @@ export default function ObservationStation() {
                       overtime: 0,
                       water: 0
                     }}
+                    emotion={observation.emotion}
                   />
                 ))}
               </div>

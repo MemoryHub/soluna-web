@@ -54,27 +54,27 @@ export default function Header() {
         </div>
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs">
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 bg-yellow-500 inline-block"></span>
+            <span className="w-2 h-2 inline-block" style={{backgroundColor: '#FFD700'}}></span>
             <span className="hidden sm:inline">兴奋</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 bg-green-500 inline-block"></span>
+            <span className="w-2 h-2 inline-block" style={{backgroundColor: '#32CD32'}}></span>
             <span className="hidden sm:inline">快乐</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 bg-blue-500 inline-block"></span>
+            <span className="w-2 h-2 inline-block" style={{backgroundColor: '#4169E1'}}></span>
             <span className="hidden sm:inline">平静</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 bg-orange-500 inline-block"></span>
+            <span className="w-2 h-2 inline-block" style={{backgroundColor: '#808080'}}></span>
             <span className="hidden sm:inline">无聊</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 bg-orange-600 inline-block"></span>
+            <span className="w-2 h-2 inline-block" style={{backgroundColor: '#FF6347'}}></span>
             <span className="hidden sm:inline">焦虑</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 bg-red-500 inline-block"></span>
+            <span className="w-2 h-2 inline-block" style={{backgroundColor: '#DC143C'}}></span>
             <span className="hidden sm:inline">愤怒</span>
           </div>
           <div className="pixel-font text-gray-500">

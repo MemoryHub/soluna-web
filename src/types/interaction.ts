@@ -45,6 +45,15 @@ export interface InteractionResponse {
   has_interacted_today: boolean;
   interaction_record?: InteractionRecord;
   updated_stats?: InteractionStats;
+  current_emotion?: {
+    color: string;
+    vibe: string;
+    emoji: string;
+    current_emotion_score: number;
+    emotion_type: string;
+    traditional: string;
+    description: string;
+  };
 }
 
 // 互动统计响应

@@ -6,6 +6,8 @@ import { environments, interactionAnimations, InteractionAnimation } from '@/con
 import { interactionApiService } from '@/services/interaction_api';
 import { InteractionType } from '@/types/interaction';
 import { useUser } from '@/hooks/useUser';
+import { useEmotionTransition } from '@/hooks/useEmotionTransition';
+import { EmotionData } from '@/types/emotion';
 
 // 确保JSX类型被正确识别
 declare namespace JSX {
@@ -28,6 +30,12 @@ interface CharacterWindowProps {
     overtime: number;
     water: number;
   };
+  emotion?: {
+    color: string;
+    vibe: string;
+    emoji: string;
+    current_emotion_score: number;
+  };
 }
 
 export default function CharacterWindow({
@@ -38,7 +46,8 @@ export default function CharacterWindow({
   hint,
   onClick,
   index,
-  interactionStats
+  interactionStats,
+  emotion
 }: CharacterWindowProps) {
   const { login, isLoggedIn, userInfo } = useUser();
   // 游戏状态
@@ -61,6 +70,14 @@ export default function CharacterWindow({
   
   // 移动端互动按钮显示状态
   const [showMobileActions, setShowMobileActions] = useState(false);
+  
+  // 情绪状态管理
+  const [currentEmotion, setCurrentEmotion] = useState(emotion);
+  const [isEmotionAnimating, setIsEmotionAnimating] = useState(false);
+  const emotionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showSpeechBubble, setShowSpeechBubble] = useState(false);
+  const [speechText, setSpeechText] = useState('');
+  const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   // 处理互动操作
   const handleInteraction = async (type: InteractionType) => {
     if (!userInfo?.user_id) return;
@@ -101,6 +118,11 @@ export default function CharacterWindow({
             });
           }
           
+          // 更新情绪信息（如果有新的情绪数据）
+          if (response.data.current_emotion) {
+            updateEmotionWithAnimation(response.data.current_emotion);
+          }
+          
           // 设置当前点击的按钮并显示文字
           const actionText = {
             'feed': '投喂TA！',
@@ -119,14 +141,23 @@ export default function CharacterWindow({
             }, 300);
           }, 2000);
           
-          // 显示互动动画
+          // 显示互动动画，并在动画结束后显示说话气泡
           const animationKey = type.toLowerCase();
           const animation = interactionAnimations[animationKey];
           if (animation) {
             setCurrentInteractionAnimation(animation);
             setTimeout(() => {
               setCurrentInteractionAnimation(null);
+              // 动画结束后显示说话气泡
+              if (response.data.current_emotion?.description) {
+                showSpeechBubbleWithText(response.data.current_emotion.description);
+              }
             }, animation.duration);
+          } else {
+            // 如果没有动画，直接显示说话气泡
+            if (response.data.current_emotion?.description) {
+              showSpeechBubbleWithText(response.data.current_emotion.description);
+            }
           }
         } else if (response.recode === 403) {
           // 今日已互动，显示明天再来的提示
@@ -173,6 +204,94 @@ export default function CharacterWindow({
     setStats(interactionStats);
   }, [interactionStats]);
 
+  // 同步props的emotion变化
+  useEffect(() => {
+    setCurrentEmotion(emotion);
+  }, [emotion]);
+
+  // 优雅的情绪更新函数
+  const updateEmotionWithAnimation = (newEmotionData: any) => {
+    if (!newEmotionData) return;
+
+    // 计算情绪变化强度
+    const currentScores = {
+      pleasure: currentEmotion?.current_emotion_score || 0,
+      arousal: currentEmotion?.current_emotion_score || 0,
+      dominance: currentEmotion?.current_emotion_score || 0
+    };
+
+    const newScores = {
+      pleasure: newEmotionData.pleasure_score || 0,
+      arousal: newEmotionData.arousal_score || 0,
+      dominance: newEmotionData.dominance_score || 0
+    };
+
+    const changeIntensity = Math.abs(newScores.pleasure - currentScores.pleasure) + 
+                           Math.abs(newScores.arousal - currentScores.arousal) + 
+                           Math.abs(newScores.dominance - currentScores.dominance);
+
+    // 根据变化强度选择动画
+    let animationClass = '';
+    if (changeIntensity > 2.0) {
+      animationClass = 'emotion-shake-strong';
+    } else if (changeIntensity > 1.0) {
+      animationClass = 'emotion-shake-medium';
+    } else if (changeIntensity > 0.3) {
+      animationClass = 'emotion-shake-gentle';
+    }
+
+    // 触发动画
+    if (animationClass) {
+      setIsEmotionAnimating(true);
+    }
+
+    // 更新情绪数据
+    setCurrentEmotion({
+      color: newEmotionData.color,
+      vibe: newEmotionData.vibe,
+      emoji: newEmotionData.emoji,
+      current_emotion_score: newEmotionData.current_emotion_score
+    });
+
+    // 清除动画状态
+    if (emotionTimeoutRef.current) {
+      clearTimeout(emotionTimeoutRef.current);
+    }
+
+    emotionTimeoutRef.current = setTimeout(() => {
+      setIsEmotionAnimating(false);
+    }, 1000);
+  };
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (emotionTimeoutRef.current) {
+        clearTimeout(emotionTimeoutRef.current);
+      }
+      if (speechTimeoutRef.current) {
+        clearTimeout(speechTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // 显示说话气泡
+  const showSpeechBubbleWithText = (text: string, duration: number = 3000) => {
+    console.log('显示说话气泡:', text);
+    setSpeechText(text);
+    setShowSpeechBubble(true);
+    
+    // 清除之前的定时器
+    if (speechTimeoutRef.current) {
+      clearTimeout(speechTimeoutRef.current);
+    }
+    
+    // 设置新的定时器
+    speechTimeoutRef.current = setTimeout(() => {
+      setShowSpeechBubble(false);
+    }, duration);
+  };
+
   // 处理按钮点击，添加登录验证
   // 处理互动按钮点击
   const handleButtonClick = (type: InteractionType) => {
@@ -214,26 +333,34 @@ export default function CharacterWindow({
     onClick();
   }
   const getMoodColor = (mood: MoodType) => {
+    // 优先使用当前情绪的颜色，如果没有则回退到mood的默认颜色
+    if (currentEmotion?.color) {
+      return currentEmotion.color;
+    }
     switch (mood) {
-      case 'happy': return 'border-green-500';
-      case 'neutral': return 'border-orange-500';
-      case 'sad': return 'border-red-500';
-      case 'excited': return 'border-yellow-500';
-      case 'calm': return 'border-blue-500';
-      case 'anxious': return 'border-orange-600';
-      default: return 'border-orange-500';
+      case 'happy': return '#32CD32';
+      case 'neutral': return '#808080';
+      case 'sad': return '#DC143C';
+      case 'excited': return '#FFD700';
+      case 'calm': return '#4169E1';
+      case 'anxious': return '#FF6347';
+      default: return '#808080';
     }
   };
 
   const getMoodDotColor = (mood: MoodType) => {
+    // 优先使用当前情绪的颜色，如果没有则回退到mood的默认颜色
+    if (currentEmotion?.color) {
+      return currentEmotion.color;
+    }
     switch (mood) {
-      case 'happy': return 'bg-green-500';
-      case 'neutral': return 'bg-orange-500';
-      case 'sad': return 'bg-red-500';
-      case 'excited': return 'bg-yellow-500';
-      case 'calm': return 'bg-blue-500';
-      case 'anxious': return 'bg-orange-600';
-      default: return 'bg-orange-500';
+      case 'happy': return '#32CD32';
+      case 'neutral': return '#808080';
+      case 'sad': return '#DC143C';
+      case 'excited': return '#FFD700';
+      case 'calm': return '#4169E1';
+      case 'anxious': return '#FF6347';
+      default: return '#808080';
     }
   };
 
@@ -314,11 +441,15 @@ export default function CharacterWindow({
 
   return (
     <div 
-      className={`observation-window cursor-pointer relative flex justify-center items-center p-2`} 
+      id={`character-window-${character.character_id}`}
+      className={`observation-window cursor-pointer relative flex justify-center items-center p-2 ${isEmotionAnimating ? 'emotion-animating' : ''}`} 
       onClick={toggleSelected}
       style={{ transform: `rotate(${getRandomRotation()}deg)`, minHeight: '280px' }}
     >
-      <div className={`border-4 ${getMoodColor(mood)} pixel-border bg-[#0f172a] overflow-hidden relative group ${glitchActive ? 'glitch' : ''} ${selected ? 'ring-4 ring-yellow-400' : ''} w-full max-w-[280px] mx-auto`}>
+      <div 
+        className={`border-4 pixel-border bg-[#0f172a] overflow-hidden relative group ${glitchActive ? 'glitch' : ''} ${selected ? 'ring-4 ring-yellow-400' : ''} ${isEmotionAnimating ? 'emotion-shake-gentle' : ''} w-full max-w-[280px] mx-auto border-color-transition ${isEmotionAnimating ? 'glow' : ''}`}
+        style={{ borderColor: getMoodColor(mood) }}
+      >
         {/* 扑克牌风格角落装饰 */}
           <div className="pixel-font absolute top-1 left-2 text-[#e53e3e] font-bold text-lg opacity-30">
             {index % 13 + 1}
@@ -333,8 +464,17 @@ export default function CharacterWindow({
             <span className="pixel-font text-gray-400 text-[10px] hidden sm:inline">{character.age}岁 · {character.occupation}</span>
             </div>
           <div className="flex items-center gap-2 bg-black/50 px-2 py-1 rounded-sm">
-              <span className={`w-3 h-3 ${getMoodDotColor(mood)} rounded-full pixel-border`}></span>
-              <span className="pixel-font text-gray-300 text-[10px] font-mono">{currentTime}</span>
+              <span 
+                id={`mood-dot-${character.character_id}`}
+                className={`w-3 h-3 rounded-full pixel-border mood-dot-transition ${isEmotionAnimating ? 'pulse' : ''}`}
+                style={{ backgroundColor: getMoodDotColor(mood) }}
+              ></span>
+              <span id={`emoji-${character.character_id}`} className="pixel-font text-gray-300 text-[10px] font-mono text-color-transition">
+                <span className={`emoji-transition ${isEmotionAnimating ? 'bounce' : ''}`}>
+                  {currentEmotion?.emoji || emotion?.emoji || '😐'}
+                </span>{' '}
+                {currentEmotion?.vibe || emotion?.vibe || '扑克脸'}
+              </span>
             </div>
         </div>
         
@@ -363,6 +503,16 @@ export default function CharacterWindow({
                 {/* 身体 */}
                 <div className="w-8 h-8 bg-[#4a5568] mt-1 rounded-sm"></div>
               </>
+            )}
+            
+            {/* 说话气泡 - 显示在角色头部左上方 */}
+            {showSpeechBubble && (
+              <div 
+                className="absolute -top-8 -left-4 bg-gray-800 text-white text-[10px] px-2 py-1 rounded shadow-lg border whitespace-nowrap z-50"
+                style={{ borderColor: getMoodColor(mood) }}
+              >
+                {speechText}
+              </div>
             )}
           </div>
           
@@ -469,6 +619,8 @@ export default function CharacterWindow({
           </div>
         )}
       </div>
+      
+
     </div>
   );
 }
